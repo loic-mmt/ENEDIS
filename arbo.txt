@@ -1,0 +1,39 @@
+Chemins relatifs à la racine du dépôt. data/ est ignoré par Git : placer les données
+transmises dans les dossiers ci-dessous. raw/ contient les exports et métadonnées
+source ; processed/ contient les Parquet structurés, avant nettoyage métier.
+
+data/
+├── processed/
+│   └── production_regionale/
+│
+└── raw/
+    ├── bornes_recharge/
+    │   ├── consolidation-nationale-irve-dynamique-2026-10-16T16_14_52.180053Z.csv
+    │   ├── consolidation_transport_irve_statique.csv
+    │   └── consolidation_transport_irve_statique_rapport.csv
+    ├── consommation/
+    │   └── consommation-electrique-par-secteur-dactivite-commune.csv
+    ├── courbes_de_charge/
+    │   ├── RES2-6-9.csv
+    │   └── RES2-9-12.csv
+    ├── production_regionale/
+    │   ├── year=2023/
+    │   │   └── part-00001.parquet … part-00012.parquet (12 fichiers)
+    │   ├── year=2024/
+    │   │   └── part-00001.parquet … part-00023.parquet (23 fichiers)
+    │   ├── year=2025/
+    │   │   └── part-00001.parquet … part-00023.parquet (23 fichiers)
+    │   ├── year=2026/
+    │   │   └── part-00001.parquet … part-00012.parquet (12 fichiers)
+    │   ├── _conversion.json
+        ├── _schema.txt
+    │   └── metadata.json
+    ├── puissance_photovoltaique/
+    │   ├── description-des-champs.csv
+    │   ├── puissance-solaire-installee-commune.csv
+    │   ├── puissance-solaire-installee-departement.csv
+    │   ├── puissance-solaire-installee-epci.csv
+    │   └── puissance-solaire-installee-region.csv
+    └── reseau/
+        ├── donnees-relatives-aux-lignes-et-aux-postes.csv
+        └── poste-electrique.csv
