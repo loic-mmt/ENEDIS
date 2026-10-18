@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from enedis.prediction.baselines import persistance_baseline
+from enedis.prediction.baselines import linear_baseline, persistance_baseline
 from enedis.prediction.utils import verify_last_date
 
 
@@ -81,6 +81,61 @@ class PersistenceTests(unittest.TestCase):
             persistance_baseline(self.frame, "absent", "year", 2024, 1)
         with self.assertRaises(ValueError):
             self.predict(self.frame.assign(target=["a", "b", "c"]))
+
+
+class LinearTests(unittest.TestCase):
+    def predict(self, years, values, cutoff=2024, horizon=3, info_length=3):
+        frame = pd.DataFrame({"year": years, "target": values}, index=range(10, 10 + len(years)))
+        original = frame.copy(deep=True)
+        result = linear_baseline(frame, "target", "year", cutoff, horizon, info_length)
+        pd.testing.assert_frame_equal(frame, original)
+        self.assertIsInstance(result, np.ndarray)
+        self.assertEqual(result.shape, (horizon,))
+        return result
+
+    def test_linear_trend_not_compound_growth(self):
+        np.testing.assert_allclose(self.predict([2022, 2023, 2024], [100., 110., 120.]),
+                                   [130., 140., 150.])
+
+    def test_uses_actual_years_and_forecasts_after_cutoff(self):
+        np.testing.assert_allclose(self.predict([2020, 2022], [100., 120.]),
+                                   [150., 160., 170.])
+
+    def test_window_uses_last_valid_observations(self):
+        np.testing.assert_allclose(self.predict([2020, 2021, 2022, 2023, 2024],
+                                               [999., 90., 100., np.nan, 120.], info_length=3),
+                                   [130., 140., 150.])
+
+    def test_single_observation_falls_back_to_persistence(self):
+        np.testing.assert_allclose(self.predict([2023, 2024], [12., np.nan]), [12.] * 3)
+
+    def test_all_missing_returns_nan(self):
+        self.assertTrue(np.isnan(self.predict([2023, 2024], [np.nan, np.nan])).all())
+
+    def test_zero_history_and_negative_extrapolation(self):
+        np.testing.assert_allclose(self.predict([2022, 2023, 2024], [0., 0., 0.]), [0.] * 3)
+        np.testing.assert_allclose(self.predict([2022, 2023, 2024], [20., 10., 0.]), [0.] * 3)
+
+    def test_calendar_dates(self):
+        np.testing.assert_allclose(self.predict(["2022-12-31", "2024-12-31"], [100., 120.],
+                                               cutoff="2024-12-31"), [130., 140., 150.])
+
+    def test_year_strings(self):
+        np.testing.assert_allclose(self.predict(["2022", "2023", "2024"], [100., 110., 120.],
+                                               cutoff="2024"), [130., 140., 150.])
+
+    def test_invalid_window(self):
+        for window in [0, -1, True, 1.5, 1]:
+            with self.subTest(window=window), self.assertRaises(ValueError):
+                self.predict([2023, 2024], [10., 20.], info_length=window)
+
+    def test_invalid_history_and_future_values(self):
+        for years, values in [([2023, 2024], [10., np.inf]),
+                              ([2024, 2024], [10., 20.]),
+                              ([2024, 2023], [10., 20.]),
+                              ([2024, 2025], [10., 20.])]:
+            with self.subTest(years=years, values=values), self.assertRaises(ValueError):
+                self.predict(years, values)
 
 
 if __name__ == "__main__":
