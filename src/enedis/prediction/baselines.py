@@ -6,7 +6,11 @@ from .utils import verify_last_date
 
 
 def persistance_baseline(
-    df: pd.DataFrame, target: str, date_column: str, last_date, horizon: int
+    df: pd.DataFrame,
+    target: str,
+    date_column: str,
+    last_date,
+    horizon: int
 ) -> np.ndarray:
     """Repeat the last observed target for `horizon` annual steps.
 
