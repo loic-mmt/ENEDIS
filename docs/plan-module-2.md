@@ -46,4 +46,4 @@ Le module de modélisation garde la construction des profils journaliers, les sc
 - Confirmer le sens des dates du parc PV et la comparabilité des territoires avec le module 1. Ne pas utiliser d’informations futures pendant la validation.
 - La production couvre trois ans et 12 régions : 2030 reste une projection sous hypothèses, dont la précision à cinq ans ne peut pas être validée directement avec cet historique.
 
-[Plan du module 1](plan-module-1.md)
+[Plan du module 1](../module_1/docs/plan-module-1.md)

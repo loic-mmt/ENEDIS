@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "data/raw/consommation/consommation-electrique-par-secteur-dactivite-commune.csv"
 OUTPUT = ROOT / "data/processed/rapports"
 CATEGORY = ["CODE CATEGORIE CONSOMMATION", "CODE GRAND SECTEUR"]

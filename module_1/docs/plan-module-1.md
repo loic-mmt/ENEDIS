@@ -2,11 +2,11 @@
 
 ## 1. Objectif et périmètre
 
-Le module 1 prépare des données fiables, documentées et accessibles pour les prévisions, les scénarios et l’application décrits dans [la problématique](problematique.md). Il couvre le profilage, le traitement des anomalies et valeurs manquantes, les référentiels géographiques, les imports Python/SQL et les vues de consultation.
+Le module 1 prépare des données fiables, documentées et accessibles pour les prévisions, les scénarios et l’application décrits dans [la problématique](../../docs/problematique.md). Il couvre le profilage, le traitement des anomalies et valeurs manquantes, les référentiels géographiques, les imports Python/SQL et les vues de consultation.
 
 **Conserver toutes les sources et toutes les colonnes disponibles**, même si leur utilité n’est pas encore démontrée. Cela ne signifie pas joindre tous les jeux dans une seule table : leurs échelles géographiques, leurs périodes et la signification de leurs lignes diffèrent.
 
-Le plan s’appuie sur [data.md](data.md), [controle-donnees.md](controle-donnees.md) et les en-têtes des CSV présents. Les nombres d’anomalies cités viennent du rapport existant ; ils devront être recalculés par les futurs scripts. Le CSV de consommation est désormais présent. Ce document est une proposition de travail : il ne crée pas encore la base et ne modifie pas les données.
+Le plan s’appuie sur [data.md](../../docs/data.md), [controle-donnees.md](../../docs/controle-donnees.md) et les en-têtes des CSV présents. Les nombres d’anomalies cités viennent du rapport existant ; ils devront être recalculés par les futurs scripts. Le CSV de consommation est désormais présent. Ce document est une proposition de travail : il ne crée pas encore la base et ne modifie pas les données.
 
 ## 2. Organisation générale
 

@@ -116,12 +116,53 @@ Quand on additionnera les consommations, il faudra préciser si certaines valeur
 
 Les pourcentages de ce document portent sur des **lignes du fichier**, pas sur la proportion de communes touchées ni sur la quantité d’électricité manquante.
 
-Le script a compté les cellules vides ou contenant seulement des espaces. Il n’a pas encore vérifié tous les nombres, les codes ou les doublons. Les causes supposées des manques restent à confirmer.
+Le script `profile_data.py` compte les cellules vides ou contenant seulement des espaces. Les contrôles complémentaires de formats et de doublons sont décrits dans la section suivante. Les causes supposées des manques restent à confirmer.
 
 | Fichier | À quoi il sert |
 | --- | --- |
-| [Rapport global](../data/processed/rapports/consommation_valeurs_manquantes.csv) | Voir le nombre de cellules vides dans chaque colonne |
-| [Rapport par année](../data/processed/rapports/consommation_manques_par_annee.csv) | Voir les différences entre les années |
-| [Rapport par catégorie et secteur](../data/processed/rapports/consommation_manques_par_categorie_secteur.csv) | Repérer les groupes les plus touchés |
-| [Rapport des combinaisons](../data/processed/rapports/consommation_combinaisons_manques.csv) | Voir quelles informations manquent ensemble ; `True` signifie que le champ est vide, `False` qu’il est renseigné |
+| [Rapport global](../../data/processed/rapports/consommation_valeurs_manquantes.csv) | Voir le nombre de cellules vides dans chaque colonne |
+| [Rapport par année](../../data/processed/rapports/consommation_manques_par_annee.csv) | Voir les différences entre les années |
+| [Rapport par catégorie et secteur](../../data/processed/rapports/consommation_manques_par_categorie_secteur.csv) | Repérer les groupes les plus touchés |
+| [Rapport des combinaisons](../../data/processed/rapports/consommation_combinaisons_manques.csv) | Voir quelles informations manquent ensemble ; `True` signifie que le champ est vide, `False` qu’il est renseigné |
 
+
+## 6. Nouveau rapport : vérification des formats et des doublons
+
+Le script [check_consommation.py](../scripts/check_consommation.py) produit le fichier **`consommation_verification_formats_et_doublons.csv`** dans `data/processed/rapports/`.
+
+Pour le lancer depuis le dossier du projet :
+
+```bash
+.venv/bin/python module_1/scripts/check_consommation.py
+```
+
+Chaque ligne du rapport correspond à un contrôle : année, format du code commune, nombres de consommation, nombre de sites ou doublons. Les cellules vides des mesures sont laissées aux rapports de valeurs manquantes ; elles ne sont pas signalées à nouveau comme des nombres invalides.
+
+| Colonne du rapport | Signification |
+| --- | --- |
+| `Controle effectue` | Ce qui a été vérifié |
+| `Resultat` | Présence ou absence de cas à examiner pour ce contrôle |
+| `Nombre de lignes concernees` | Nombre de lignes qui demandent une vérification |
+| `Pourcentage des lignes du fichier` | Part de ces lignes dans le fichier complet |
+| `Nombre de groupes repetes` | Nombre de groupes contenant plusieurs occurrences, uniquement pour les doublons |
+| `Nombre de repetitions apres la premiere occurrence` | Nombre d’occurrences supplémentaires, uniquement pour les doublons |
+| `Explication du controle` | Règle appliquée et ses limites |
+| `Exemples (5 maximum)` | Valeurs et numéros permettant de retrouver quelques cas |
+
+**Exemple pour les doublons :** une ligne présente trois fois forme un groupe répété, concerne trois lignes et compte deux occurrences supplémentaires. Les doublons sont recherchés dans tout le fichier, même lorsqu’ils se trouvent dans des lots de lecture différents.
+
+Les numéros d’exemple comptent les enregistrements CSV : l’en-tête est le numéro 1 et la première donnée le numéro 2. Ils peuvent différer des lignes affichées par un éditeur si une cellule contient un retour à la ligne.
+
+Une clé répétée signifie que commune, année, catégorie, grand secteur et NAF2 sont identiques après retrait des espaces au début et à la fin. Cela ne suffit pas à décider de supprimer une ligne. Le contrôle du code commune vérifie son format, pas son existence officielle. Aucune correction ou suppression automatique n’est effectuée.
+
+### Résultat du contrôle du 29 octobre 2026
+
+Les **3 763 258 lignes** ont été parcourues. Les **23 contrôles** du rapport n’ont détecté aucun cas à examiner :
+
+- années et formats de code commune conformes aux règles testées ;
+- consommations renseignées numériques, finies et non négatives ;
+- nombres de sites renseignés entiers et non négatifs ;
+- aucune ligne entièrement identique ;
+- aucune répétition pour la combinaison commune + année + catégorie + grand secteur + NAF2.
+
+Ces résultats ne suppriment pas les valeurs manquantes déjà recensées et ne valident pas l’existence officielle des codes commune. Ils ne vérifient pas non plus que des totaux et leurs détails peuvent être additionnés sans double compte. Le script ne teste pas encore si une moyenne manquante peut être calculée : il faudra notamment vérifier le dénominateur et la définition de la source.
