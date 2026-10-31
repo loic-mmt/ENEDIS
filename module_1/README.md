@@ -1,6 +1,6 @@
 # Module 1 — Comprendre et préparer les données
 
-Ce dossier regroupe le plan, les décisions et les scripts de traitement du module 1. La description générale des données et leur inventaire restent dans le dossier commun `docs/`. Le but est de préparer la future base PostgreSQL/PostGIS pour les autres membres du projet.
+Ce dossier regroupe le plan, les décisions et les scripts de traitement du module 1. La description générale des données et leur inventaire restent dans le dossier commun `docs/data/`. Le but est de préparer la future base PostgreSQL/PostGIS pour les autres membres du projet.
 
 ## Où trouver quoi ?
 
@@ -19,8 +19,8 @@ Les fichiers reçus restent dans `data/raw/`, à la racine du projet. Les rappor
 
 ## Dans quel ordre lire les documents ?
 
-1. [Description des données](../docs/data.md) : ce que contient chaque fichier et à quoi il peut servir.
-2. [Inventaire et contrôles](../docs/controle-donnees.md) : volumes, périodes et problèmes connus.
+1. [Description des données](../docs/data/data.md) : ce que contient chaque fichier et à quoi il peut servir.
+2. [Inventaire et contrôles](../docs/data/controle-donnees.md) : volumes, périodes et problèmes connus.
 3. [Résultats et décisions](docs/decisions-traitement.md) : ce qu’on a trouvé dans la consommation et ce qu’on va en faire.
 4. [Plan du module 1](docs/plan-module-1.md) : organisation du travail et proposition de base SQL.
 
@@ -60,4 +60,4 @@ Ces deux commandes recalculent leurs rapports et remplacent les anciens rapports
 - Les autres jeux sont décrits et restent tous dans le périmètre du module ; ces deux scripts ne les contrôlent pas encore.
 - La vérification des définitions officielles, les diagnostics des autres sources, l’harmonisation géographique et la création de la base restent à faire.
 
-La [problématique générale](../docs/problematique.md) et le [plan du module 2](../docs/plan-module-2.md) restent dans le dossier commun `docs/`. Les scripts de téléchargement et de conversion restent dans le dossier commun `scripts/`.
+La [problématique générale](../docs/problematique.md) reste dans `docs/` et le [plan du module 2](../docs/module_2/plan-module-2.md) dans `docs/module_2/`. Les scripts de téléchargement et de conversion restent dans le dossier commun `scripts/`.

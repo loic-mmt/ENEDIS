@@ -32,4 +32,4 @@ Production régionale : **1,28 Go**, avec `metadata.json`, `_conversion.json` et
 - **Courbes de charge :** vérifier unité, pas temporel, trous et doublons ID/horodatage ; 500 identifiants par fichier.
 - **Production régionale :** vérifier les doublons entre pages d’origine ; éviter de sommer les catégories totales `P0`/`F0` avec leurs détails. Énergies en Wh.
 
-Emplacements détaillés : [arbo.txt](../arbo.txt). Validation Parquet : [rapport](../data/raw/production_regionale/_conversion.json).
+Emplacements détaillés : [arbo.txt](../../arbo.txt). Validation Parquet : [rapport](../../data/raw/production_regionale/_conversion.json).
