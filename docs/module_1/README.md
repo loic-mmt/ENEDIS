@@ -72,3 +72,5 @@ Les fichiers de création sont disponibles, **sans avoir été exécutés** :
 - [Script d’import de consommation](../../scripts/module_1/import_consommation.py).
 
 Le premier import conserve les données d’origine, crée une version typée de la consommation et garde les absences en `NULL`. Les imports des autres jeux restent à développer.
+
+Pour savoir où ira chaque fichier reçu et pourquoi : [correspondance entre fichiers et tables](correspondance-fichiers-tables.md).

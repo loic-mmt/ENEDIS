@@ -134,3 +134,5 @@ Ces vues ne font aucune somme, moyenne ou prédiction. Filtrer par `id_import` p
 - Le lien entre source et table typée est protégé par une clé étrangère. Les règles propres aux autres jeux restent à compléter après leur diagnostic.
 
 Pour les étapes de création et les commandes, suivre [installation-base.md](installation-base.md).
+
+Pour retrouver les noms exacts des fichiers sources de chaque table : [correspondance entre fichiers et tables](correspondance-fichiers-tables.md).
