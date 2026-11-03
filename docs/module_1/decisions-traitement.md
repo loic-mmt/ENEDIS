@@ -128,12 +128,12 @@ Le script `profile_data.py` compte les cellules vides ou contenant seulement des
 
 ## 6. Nouveau rapport : vérification des formats et des doublons
 
-Le script [check_consommation.py](../scripts/check_consommation.py) produit le fichier **`consommation_verification_formats_et_doublons.csv`** dans `data/processed/rapports/`.
+Le script [check_consommation.py](../../scripts/module_1/check_consommation.py) produit le fichier **`consommation_verification_formats_et_doublons.csv`** dans `data/processed/rapports/`.
 
 Pour le lancer depuis le dossier du projet :
 
 ```bash
-.venv/bin/python module_1/scripts/check_consommation.py
+.venv/bin/python scripts/module_1/check_consommation.py
 ```
 
 Chaque ligne du rapport correspond à un contrôle : année, format du code commune, nombres de consommation, nombre de sites ou doublons. Les cellules vides des mesures sont laissées aux rapports de valeurs manquantes ; elles ne sont pas signalées à nouveau comme des nombres invalides.
@@ -155,7 +155,7 @@ Les numéros d’exemple comptent les enregistrements CSV : l’en-tête est le 
 
 Une clé répétée signifie que commune, année, catégorie, grand secteur et NAF2 sont identiques après retrait des espaces au début et à la fin. Cela ne suffit pas à décider de supprimer une ligne. Le contrôle du code commune vérifie son format, pas son existence officielle. Aucune correction ou suppression automatique n’est effectuée.
 
-### Résultat du contrôle du 29 octobre 2026
+### Résultat 
 
 Les **3 763 258 lignes** ont été parcourues. Les **23 contrôles** du rapport n’ont détecté aucun cas à examiner :
 

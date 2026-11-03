@@ -1,37 +1,37 @@
 # Module 1 — Comprendre et préparer les données
 
-Ce dossier regroupe le plan, les décisions et les scripts de traitement du module 1. La description générale des données et leur inventaire restent dans le dossier commun `docs/data/`. Le but est de préparer la future base PostgreSQL/PostGIS pour les autres membres du projet.
+Ce dossier regroupe le plan et les décisions du module 1. Les scripts de traitement se trouvent dans `scripts/module_1/`, à la racine du projet. La description générale des données et leur inventaire restent dans le dossier commun `docs/data/`. Le but est de préparer la future base PostgreSQL/PostGIS pour les autres membres du projet.
 
 ## Où trouver quoi ?
 
 ```text
-module_1/
+docs/module_1/
 ├── README.md                    ← commencer ici
-├── docs/
-│   ├── decisions-traitement.md   ← résultats expliqués et décisions
-│   └── plan-module-1.md          ← plan complet jusqu’à la base SQL
-└── scripts/
-    ├── profile_data.py          ← compter et analyser les valeurs manquantes
-    └── check_consommation.py    ← vérifier les formats et les doublons
+├── decisions-traitement.md      ← résultats expliqués et décisions
+└── plan-module-1.md             ← plan complet jusqu’à la base SQL
+
+scripts/module_1/
+├── profile_data.py              ← compter et analyser les valeurs manquantes
+└── check_consommation.py        ← vérifier les formats et les doublons
 ```
 
 Les fichiers reçus restent dans `data/raw/`, à la racine du projet. Les rapports générés restent dans `data/processed/rapports/`. Les scripts ne modifient pas les données brutes.
 
 ## Dans quel ordre lire les documents ?
 
-1. [Description des données](../docs/data/data.md) : ce que contient chaque fichier et à quoi il peut servir.
-2. [Inventaire et contrôles](../docs/data/controle-donnees.md) : volumes, périodes et problèmes connus.
-3. [Résultats et décisions](docs/decisions-traitement.md) : ce qu’on a trouvé dans la consommation et ce qu’on va en faire.
-4. [Plan du module 1](docs/plan-module-1.md) : organisation du travail et proposition de base SQL.
+1. [Description des données](../data/data.md) : ce que contient chaque fichier et à quoi il peut servir.
+2. [Inventaire et contrôles](../data/controle-donnees.md) : volumes, périodes et problèmes connus.
+3. [Résultats et décisions](decisions-traitement.md) : ce qu’on a trouvé dans la consommation et ce qu’on va en faire.
+4. [Plan du module 1](plan-module-1.md) : organisation du travail et proposition de base SQL.
 
 ## Comment lancer les traitements ?
 
-Exécuter les commandes **depuis la racine de `Projet_Tuteuré`**, là où se trouvent `.venv/`, `data/` et `module_1/`.
+Exécuter les commandes **depuis la racine de `Projet_Tuteuré`**, là où se trouvent `.venv/`, `data/`, `docs/` et `scripts/`.
 
 ### Étape 1 — Analyser les cellules vides de consommation
 
 ```bash
-.venv/bin/python module_1/scripts/profile_data.py
+.venv/bin/python scripts/module_1/profile_data.py
 ```
 
 Ce script produit quatre rapports dans `data/processed/rapports/` :
@@ -46,7 +46,7 @@ Ce script produit quatre rapports dans `data/processed/rapports/` :
 ### Étape 2 — Vérifier les formats et les doublons
 
 ```bash
-.venv/bin/python module_1/scripts/check_consommation.py
+.venv/bin/python scripts/module_1/check_consommation.py
 ```
 
 Ce script produit `consommation_verification_formats_et_doublons.csv`, dans le même dossier de rapports. Il contrôle les années, les formats des codes commune, les consommations renseignées, le nombre de sites et les répétitions dans tout le fichier.
@@ -56,8 +56,8 @@ Ces deux commandes recalculent leurs rapports et remplacent les anciens rapports
 ## Où en est-on ?
 
 - La consommation a été analysée pour les valeurs manquantes, les formats et les doublons.
-- Les décisions actuelles sont décrites dans [decisions-traitement.md](docs/decisions-traitement.md).
+- Les décisions actuelles sont décrites dans [decisions-traitement.md](decisions-traitement.md).
 - Les autres jeux sont décrits et restent tous dans le périmètre du module ; ces deux scripts ne les contrôlent pas encore.
 - La vérification des définitions officielles, les diagnostics des autres sources, l’harmonisation géographique et la création de la base restent à faire.
 
-La [problématique générale](../docs/problematique.md) reste dans `docs/` et le [plan du module 2](../docs/module_2/plan-module-2.md) dans `docs/module_2/`. Les scripts de téléchargement et de conversion restent dans le dossier commun `scripts/`.
+La [problématique générale](../problematique.md) reste dans `docs/` et le [plan du module 2](../module_2/plan-module-2.md) dans `docs/module_2/`. Les scripts de téléchargement et de conversion restent dans le dossier commun `scripts/`.

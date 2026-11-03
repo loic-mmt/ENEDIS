@@ -54,4 +54,4 @@ Le module 3 garde la construction des profils journaliers, les scénarios solair
 - La production couvre trois ans et 12 régions : 2030 reste une projection sous hypothèses.
 - L’indicateur final sert à prioriser les analyses territoriales. Il ne mesure pas la saturation réelle du réseau.
 
-[Plan du module 1](../../module_1/docs/plan-module-1.md) · [Plan du module 2](../module_2/plan-module-2.md)
+[Plan du module 1](../module_1/plan-module-1.md) · [Plan du module 2](../module_2/plan-module-2.md)
