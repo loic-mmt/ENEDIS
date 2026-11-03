@@ -61,3 +61,14 @@ Ces deux commandes recalculent leurs rapports et remplacent les anciens rapports
 - La vérification des définitions officielles, les diagnostics des autres sources, l’harmonisation géographique et la création de la base restent à faire.
 
 La [problématique générale](../problematique.md) reste dans `docs/` et le [plan du module 2](../module_2/plan-module-2.md) dans `docs/module_2/`. Les scripts de téléchargement et de conversion restent dans le dossier commun `scripts/`.
+
+## Préparer la base PostgreSQL/PostGIS
+
+Les fichiers de création sont disponibles, **sans avoir été exécutés** :
+
+- [Installation et ordre des commandes](installation-base.md).
+- [Schéma et description des tables](schema-base.md).
+- [SQL de création](../../sql/module_1/001_structure_base.sql).
+- [Script d’import de consommation](../../scripts/module_1/import_consommation.py).
+
+Le premier import conserve les données d’origine, crée une version typée de la consommation et garde les absences en `NULL`. Les imports des autres jeux restent à développer.
