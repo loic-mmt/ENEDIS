@@ -1,10 +1,32 @@
 Chemins relatifs à la racine du dépôt. data/ est ignoré par Git : placer les données
 transmises dans les dossiers ci-dessous. raw/ contient les exports et métadonnées
-source ; processed/ contient les Parquet structurés, avant nettoyage métier.
+source ; processed/ contient les rapports et exports dérivés ; imputed/ contient
+les bases filtrées et expériences d'imputation, sans modification de raw/.
 
 data/
-├── processed/
+├── imputed/
 │   └── production_regionale/
+│       └── region_53/
+│           ├── bases/<source_id>/
+│           │   ├── observations.parquet
+│           │   ├── natural_gaps.parquet
+│           │   └── manifest.json
+│           ├── evaluations/<evaluation_id>/
+│           │   ├── gaps.parquet
+│           │   ├── masks.parquet
+│           │   ├── truth.parquet
+│           │   └── manifest.json
+│           └── runs/<evaluation_id>/references/<run_id>/
+│               ├── predictions_linear.parquet
+│               ├── predictions_previous_day.parquet
+│               ├── predictions_seasonal_median.parquet
+│               ├── scores.parquet
+│               ├── scores_global.csv
+│               ├── scores_stratified.csv
+│               └── manifest.json
+├── processed/
+│   ├── production_regionale/
+│   └── rapports/
 │
 └── raw/
     ├── bornes_recharge/
@@ -26,7 +48,7 @@ data/
     │   ├── year=2026/
     │   │   └── part-00001.parquet … part-00012.parquet (12 fichiers)
     │   ├── _conversion.json
-        ├── _schema.txt
+    │   ├── _schema.txt
     │   └── metadata.json
     ├── puissance_photovoltaique/
     │   ├── description-des-champs.csv
