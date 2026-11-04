@@ -136,3 +136,7 @@ Ces vues ne font aucune somme, moyenne ou prédiction. Filtrer par `id_import` p
 Pour les étapes de création et les commandes, suivre [installation-base.md](installation-base.md).
 
 Pour retrouver les noms exacts des fichiers sources de chaque table : [correspondance entre fichiers et tables](correspondance-fichiers-tables.md).
+
+## Évolution du besoin : interface Python générique
+
+Le schéma métier décrit ci-dessus reste une proposition. Pour centraliser les fichiers actuels sans SQL manuel, utiliser désormais [le package `enedis.database`](package-database.md) : tables dans `donnees`, suivi dans `database_meta`, et évolution additive des colonnes depuis Python. Les deux parcours ne sont pas synchronisés automatiquement ; choisir celui à utiliser avant le chargement.

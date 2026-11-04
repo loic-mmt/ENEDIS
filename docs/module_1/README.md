@@ -74,3 +74,9 @@ Les fichiers de création sont disponibles, **sans avoir été exécutés** :
 Le premier import conserve les données d’origine, crée une version typée de la consommation et garde les absences en `NULL`. Les imports des autres jeux restent à développer.
 
 Pour savoir où ira chaque fichier reçu et pourquoi : [correspondance entre fichiers et tables](correspondance-fichiers-tables.md).
+
+## Interface Python partagée — point d’entrée recommandé
+
+Le besoin de centraliser toutes les sources et d'ajouter des tables/colonnes depuis Python est maintenant pris en charge dans `src/enedis/database/`.
+
+Lire [Utiliser le package database](package-database.md) pour installer le package, importer les CSV/Parquet et accéder aux fonctions de création, évolution et lecture. Aucun import n’a été exécuté. Les fichiers SQL précédents restent un modèle métier proposé ; cette interface utilise un schéma `donnees` distinct.

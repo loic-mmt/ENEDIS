@@ -106,3 +106,7 @@ Ces vues ne font aucune estimation ni agrégation de consommation. Il faudra cho
 **Les scripts d’import du solaire, de la production, des bornes, du réseau, des courbes et des référentiels restent à écrire.** Leurs tables sont une première structure : certaines colonnes typées pourront être ajoutées, tandis que les autres attributs sources resteront accessibles dans `staging.observation`.
 
 Pour les commandes : [installation-base.md](installation-base.md). Pour les relations entre tables : [schema-base.md](schema-base.md).
+
+## Interface générique ajoutée ensuite
+
+Les tables `core.*` ci-dessus décrivent le premier modèle métier SQL. Pour centraliser directement tous les fichiers via Python, le package `enedis.database` utilise des tables `donnees.*` et le suivi `database_meta.fichier`. Leur correspondance avec les sources et les fonctions disponibles est expliquée dans [package-database.md](package-database.md). Ce parcours ne remplit pas automatiquement les anciennes tables `core.*`.

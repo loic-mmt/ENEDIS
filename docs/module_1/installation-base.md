@@ -145,3 +145,7 @@ unset PGPASSWORD
 - Les droits de lecture pour les autres membres, les sauvegardes et les vues destinées à l’application.
 
 Le [schéma de la base](schema-base.md) explique les tables et leurs relations.
+
+## Nouvelle interface Python pour centraliser tous les fichiers
+
+Pour le besoin de création et d’évolution des tables depuis Python, suivre désormais [package-database.md](package-database.md). Ce parcours utilise `enedis.database` et le schéma `donnees`, sans devoir exécuter les fichiers SQL métier ci-dessus. Ces derniers restent une autre proposition de structuration ; choisir un parcours avant l’import afin de ne pas charger les mêmes données dans deux modèles différents.
