@@ -1,5 +1,7 @@
 numpy
 pandas
 matplotlib
+pvlib
+statsmodels
 pyarrow>=26.0.0,<27
 scikit-learn>=1.4,<2
