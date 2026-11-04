@@ -8,7 +8,7 @@ Expliquer les évolutions régionales de la consommation et du solaire, simuler 
 | --- | --- | --- |
 | Profils journaliers solaire par région | `data/raw/production_regionale/` (`F5` et `P0`) | fait, voir `profil-solaire.md` |
 | Profils journaliers de consommation | `data/raw/courbes_de_charge/RES2-6-9.csv` | fait, voir `courbes-de-charge.md` |
-| Charge nette par région | profils solaire et consommation, consommation annuelle régionale | premier test sur PACA, voir `charge-nette.md` |
+| Charge nette par région | profils solaire et consommation, consommation annuelle régionale | fait sur les 12 régions (résultat indicatif), voir `charge-nette.md` et `classement-regions.md` |
 | Scénarios solaire et véhicules électriques | trajectoires du module 2, bornes de recharge (`data/raw/bornes_recharge/`) | à faire |
 | Incertitude (Monte-Carlo) | erreurs historiques du module 2, hypothèses de scénario | à faire |
 | Indicateurs de pression par région | charge nette, scénarios, caractéristiques du réseau (`data/raw/reseau/`) | à faire |
@@ -22,7 +22,7 @@ Hors périmètre : les pompes à chaleur. Aucune donnée directe n’existe, et 
 | 1. Préparer les entrées | Vérifier unités, dates, doublons et couverture des données de production, de consommation et des courbes de charge. Confirmer l’unité de la colonne `valeur` des courbes de charge. | Jeux contrôlés (fait pour la production 2025 et `RES2-6-9`) |
 | 2. Construire les profils journaliers | Profils moyens par région, saison et heure du jour, en heure française. Étendre aux 12 régions et traiter `RES2-9-12`. | Profils par région |
 | 3. Calculer la charge nette | Consommation estimée moins production solaire, par région et par saison. Corriger le périmètre (consommation totale ou solaire de petite puissance). | Charge nette par région |
-| 4. Extraire les indicateurs | Creux de midi (minimum de la charge nette) et rampe du soir (montée maximale sur une heure). | Premier classement des régions |
+| 4. Extraire les indicateurs | Creux de midi (minimum de la charge nette) et rampe du soir (montée maximale sur une heure). | Premier classement des régions (fait, voir `classement-regions.md`) |
 | 5. Expliquer les évolutions | Tableau région × année et modèle explicatif simple (effets fixes), à partir des historiques régionaux. | Facteurs explicatifs |
 | 6. Définir les scénarios | Scénarios bas, central et haut pour le solaire et les véhicules électriques, définis par rapport à la référence du module 2. | Scénarios 2030 |
 | 7. Quantifier l’incertitude | Monte-Carlo sur les hypothèses, avec les erreurs historiques du module 2. | Intervalles par région |

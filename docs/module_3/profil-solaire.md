@@ -46,3 +46,4 @@ Pic moyen d'été 2025, en MWh par demi-heure :
 - Il s'agit de l'énergie injectée sur le réseau, sans l'autoconsommation.
 - Les valeurs sont absolues et dépendent de la taille du parc de chaque région. Pour comparer l'ensoleillement, il faudrait les ramener à la puissance installée (fichier photovoltaïque régional).
 - Le contrôle des doublons a été fait sur 2025. Les autres années n'ont pas été vérifiées.
+- Une partie des valeurs est reconstituée par profilage plutôt que mesurée : les très faibles valeurs nocturnes peuvent venir de cette méthode. Effet non mesuré sur nos indicateurs.
