@@ -1,44 +1,30 @@
 import pandas as pd
 import numpy as np
-from numbers import Integral
 
-from .utils import verify_last_date
+from .utils import check_column, check_finite, check_integer, check_numeric, verify_last_date
 
 
-def persistance_baseline(
-    df: pd.DataFrame,
-    target: str,
-    date_column: str,
-    last_date,
-    horizon: int
-) -> np.ndarray:
+def persistance_baseline(df: pd.DataFrame, target: str, date_column: str, last_date, horizon: int) -> np.ndarray:
     """Repeat the last observed target for `horizon` annual steps.
 
     Input must describe ONE commune, already ordered chronologically and limited
     to last_date by the caller. Missing targets are skipped; an entirely missing
     target produces NaN predictions. No filtering or mutation is performed.
     """
-    if isinstance(horizon, bool) or not isinstance(horizon, Integral) or horizon <= 0:
-        raise ValueError("horizon doit être un entier strictement positif.")
-    if not isinstance(target, str) or target not in df.columns:
-        raise ValueError(f"Colonne cible absente ou invalide : {target}")
-
+    check_integer(horizon, "horizon", minimum=1)
+    check_column(df, target, "Colonne cible")
     verify_last_date(df, date_column, last_date)
 
     variable = df[target]
-
-    if not isinstance(variable, pd.Series):
-        raise ValueError(f"Colonne cible dupliquée : {target}")
-    if not pd.api.types.is_numeric_dtype(variable.dtype) and variable.notna().any():
-        raise ValueError(f"La cible {target} doit être numérique.")
+    check_numeric(variable, target, allow_bool=True, allow_complex=True, finite=False)
 
     observed = variable.dropna()
     value = float(observed.iloc[-1]) if not observed.empty else np.nan
 
-    if not observed.empty and not np.isfinite(value):
-        raise ValueError("La dernière valeur observée doit être finie.")
+    if not observed.empty:
+        check_finite(value, "Dernière valeur observée")
 
-    return np.full(horizon, value, dtype=float)
+    return np.full(horizon, value, dtype=float)  # shape: (horizon,) ; NaN si aucun historique connu.
 
 
 def linear_baseline(
@@ -58,8 +44,7 @@ def linear_baseline(
     back to persistence. Forecasts are clipped at zero for energy/capacity targets.
     The input is never modified.
     """
-    if isinstance(info_length, bool) or not isinstance(info_length, Integral) or info_length < 2:
-        raise ValueError("info_length doit être un entier supérieur ou égal à 2.")
+    check_integer(info_length, "info_length", minimum=2)
 
     # Reuse target, horizon and cutoff validation, and the fallback predictions.
     fallback = persistance_baseline(df, target, date_column, last_date, horizon)
@@ -75,9 +60,8 @@ def linear_baseline(
         raise ValueError("Historique annuel attendu : années uniques, en ordre croissant.")
 
     mask = df[target].notna().to_numpy()
-    observed = df[target].dropna().to_numpy(dtype=float)
-    if not np.isfinite(observed).all():
-        raise ValueError("Les valeurs observées doivent être finies.")
+    observed = df[target].dropna().to_numpy(dtype=float)  # Même sélection que years[mask].
+    check_finite(observed, "Valeurs observées")
     if len(observed) < 2:
         return fallback
 
@@ -96,6 +80,6 @@ def linear_baseline(
     future_years = origin + np.arange(1, horizon + 1, dtype=float)
 
     predictions = y.mean() + slope * (future_years - x.mean())
-    if not np.isfinite(predictions).all():
-        raise ValueError("La tendance produit des prévisions non finies.")
-    return np.maximum(predictions, 0.0)
+    check_finite(predictions, "Prévisions de tendance")
+
+    return np.maximum(predictions, 0.0)  # Consommation et puissance restent non négatives.
