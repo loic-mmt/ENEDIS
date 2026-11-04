@@ -1,6 +1,6 @@
 # Classement des régions : creux de midi et rampe du soir
 
-Code : `src/enedis/scenarios/charge_nette.py` (fonctions), `scripts/module3/classement_regions.py` (calcul sur les 12 régions et graphique), `tests/test_scenarios_charge_nette.py` (10 tests unitaires).
+Code : `src/enedis/scenarios/charge_nette.py` (fonctions), `scripts/module3/classement_regions.py` (calcul sur les 12 régions et graphique), `scripts/module3/comparaison_courbes_charge.py` (robustesse selon le fichier de courbes de charge), `tests/test_scenarios_charge_nette.py` (10 tests unitaires).
 
 ## Objectif
 
@@ -52,10 +52,31 @@ Les valeurs absolues sont en MWh par demi-heure.
 - L'heure du creux n'est pas toujours à midi (16 h en Nouvelle-Aquitaine, 14 h 30 en Occitanie) : la consommation résidentielle estimée baisse en fin d'après-midi alors que le solaire reste élevé.
 - Pour les régions du Nord, l'heure du creux (8 h 30, 16 h 30) et celle de la rampe (21 h 30) viennent de la forme de la consommation seule, pas du solaire. Le creux n'a de sens que là où il est négatif ou proche de zéro.
 
+## Robustesse : deux fichiers de courbes de charge
+
+Le calcul a été refait avec `RES2-6-9` puis `RES2-9-12` (500 foyers chacun, aucun en commun) pour vérifier que le classement ne dépend pas de l'échantillon de clients. Script : `comparaison_courbes_charge.py`.
+
+Corrélation des rangs entre les deux fichiers :
+
+| Indicateur | Été 2024 | Hiver 2023-24 |
+| --- | --- | --- |
+| Creux de midi relatif | 0,97 | 1,00 |
+| Rampe du soir relative | 0,71 | 0,99 |
+
+- **Les 4 premières régions sont les mêmes** avec les deux fichiers, pour le creux et pour la rampe d'été : Nouvelle-Aquitaine, Occitanie, puis PACA et Centre-Val de Loire (seule la 3e et la 4e place s'échangent sur le creux). Le bas du classement (Bretagne, Hauts-de-France, Normandie, Île-de-France) est aussi stable, sur le creux.
+- **Zone grise** : Pays de la Loire, Bourgogne-Franche-Comté, Auvergne-Rhône-Alpes et Grand-Est sont autour de zéro sur le creux et changent de rang d'un fichier à l'autre. Elles doivent être présentées comme un groupe, sans ordre entre elles.
+- **Rampe d'été, corrélation 0,71** : avec `RES2-9-12`, huit régions ont presque la même rampe (environ 0,46). Là où le solaire est faible, la rampe vient de la forme de la consommation et non du solaire, donc elle ne départage pas ces régions. L'accord est bon en haut du classement.
+- **Hiver** : classement quasi identique, mais les régions se distinguent très peu (creux relatif entre 0,44 et 0,84, rampes entre 0,11 et 0,20).
+
+## Portée du résultat
+
+Ce classement indique où le décalage entre solaire et consommation est le plus marqué. Il sert à prioriser des analyses, il ne mesure pas une saturation du réseau. Les régions hors du haut du classement ne sont pas sans contrainte : la rampe du soir existe partout, y compris dans les régions sans excédent solaire. L'indicateur final combinera d'autres dimensions (scénarios 2030, réseau) et l'ordre pourra changer.
+
 ## Limites
 
 - **Résultat indicatif.** La consommation est résidentielle et estimée à partir de 500 clients, le solaire injecté est total (grandes centrales comprises). L'excédent de midi est exagéré, surtout en Nouvelle-Aquitaine et en Occitanie.
-- Hypothèse d'un profil de consommation unique pour toutes les régions (celui des 500 clients).
+- Hypothèse d'un profil de consommation unique pour toutes les régions (celui des foyers échantillonnés).
+- **Une seule année** : les courbes de charge ne couvrent que du 01/11/2023 au 29/10/2024, donc tout le calcul porte sur 2024 (été 2024, hiver 2023-24). La consommation annuelle de 2024 sert à caler les profils ; sa période (janvier à décembre) ne coïncide pas exactement avec celle des courbes. Le résultat décrit une photo de 2024, pas une évolution.
 - Moyennes sur trois mois : les journées extrêmes sont lissées.
 - Unité de `valeur` non confirmée (sans effet sur ces indicateurs).
 - Une partie du solaire est reconstituée par profilage plutôt que mesurée (remarque de l'équipe sur les données de production) : les très faibles valeurs nocturnes peuvent en venir. Effet attendu faible sur ces indicateurs, mais non mesuré.
@@ -63,6 +84,7 @@ Les valeurs absolues sont en MWh par demi-heure.
 ## Suite
 
 1. Refaire le calcul avec les petites puissances solaires seulement (plages `P1` à `P3`, plus proches du résidentiel) et vérifier que le classement tient.
+1. Refaire le calcul en changeant l'année de consommation (`ANNEE_CONSO` à 2023 puis 2025) pour vérifier que l'ordre ne dépend pas de ce choix.
 2. Brancher la consommation totale de la région à la place du résidentiel.
 3. Mesurer la production nocturne (maximum entre 22 h et 4 h) pour confirmer que l'effet du profilage est négligeable.
 4. Appliquer les scénarios 2030 au profil de charge nette.

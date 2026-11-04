@@ -4,7 +4,7 @@ Script : `scripts/module3/profil_conso.py`. Exploration préalable : `scripts/mo
 
 ## Données
 
-`data/raw/courbes_de_charge/RES2-6-9.csv` : séparateur `;`, colonnes `ID`, `horodate` (avec décalage horaire), `valeur`, pas de 30 minutes. Seul `RES2-6-9` a été exploité pour l'instant (`RES2-9-12.csv` reste à regarder).
+`data/raw/courbes_de_charge/RES2-6-9.csv` : séparateur `;`, colonnes `ID`, `horodate` (avec décalage horaire), `valeur`, pas de 30 minutes. Les deux fichiers ont été exploités et comparés (voir `classement-regions.md`).
 
 ## Contrôles
 
@@ -20,9 +20,23 @@ Script : `scripts/module3/profil_conso.py`. Exploration préalable : `scripts/mo
 
 500 clients × 17 472 demi-heures (364 jours) = 8 736 000 : la série est complète, du 01/11/2023 au 29/10/2024.
 
+## Contrôles (`RES2-9-12`)
+
+| Indicateur | Valeur |
+| --- | --- |
+| Lignes | 8 736 000 |
+| Identifiants | 500 |
+| Doublons (ID, horodate) | 0 |
+| Valeurs manquantes | 0 |
+| Moyenne de `valeur` | 926,2 |
+| Médiane | 512,3 |
+| Maximum | 12 000 |
+
+Même période que `RES2-6-9` (du 01/11/2023 au 29/10/2024). Les deux fichiers n'ont **aucun identifiant en commun** : on dispose de 1 000 foyers distincts.
+
 ## Unité non confirmée
 
-Le maximum proche de 9 000 est compatible avec une puissance moyenne en watts pour des abonnements de 6 à 9 kVA, mais ce n'est qu'une supposition. À vérifier sur la description du jeu de données d'Enedis. La signification de `6-9` (tranche de puissance souscrite) n'est pas vérifiée non plus.
+Les maxima (8 998 pour `RES2-6-9`, 12 000 pour `RES2-9-12`) sont compatibles avec une puissance moyenne en watts pour des abonnements de 6 à 9 kVA et de 9 à 12 kVA, mais ce n'est qu'une supposition. À vérifier sur la description du jeu de données d'Enedis. La signification de `6-9` et `9-12` (tranche de puissance souscrite) n'est pas vérifiée non plus.
 
 ## Résultats
 
