@@ -4,7 +4,7 @@ Diagnostic des fichiers bruts, sans nettoyage ni imputation. Consommation et PV 
 
 ## Conclusion
 
-**La Bretagne (53) sélectionnée région pilote suite aux sorties `scripts/coverage_region_pilote.py`.**
+**La Bretagne (53) sélectionnée région pilote suite aux sorties `scripts/module_2/coverage_region_pilote.py`.**
 
 | Source | Résultat | Conséquence |
 | --- | --- | --- |
@@ -37,8 +37,8 @@ Diagnostic des fichiers bruts, sans nettoyage ni imputation. Consommation et PV 
 Commandes depuis la racine du dépôt. Résumés avec les options par défaut ; exemples communaux limités à dix.
 
 ```bash
-.venv/bin/python scripts/coverage_region_pilote.py
-.venv/bin/python scripts/coverage_pv_communal.py --region 53
+.venv/bin/python scripts/module_2/coverage_region_pilote.py
+.venv/bin/python scripts/module_2/coverage_pv_communal.py --region 53
 ```
 
 <details>

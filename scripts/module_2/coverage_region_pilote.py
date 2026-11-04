@@ -16,7 +16,7 @@ import pandas as pd
 import pyarrow.dataset as ds
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 REGIONS = {
     "11": "Île-de-France", "24": "Centre-Val de Loire",
     "27": "Bourgogne-Franche-Comté", "28": "Normandie",

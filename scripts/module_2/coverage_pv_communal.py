@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 COMMUNE_PATTERN = r"(?:[0-9]{5}|2[AB][0-9]{3})"
 DEPARTMENT_PATTERN = r"(?:[0-9]{2}|9[78][0-9]|2[AB])"
 

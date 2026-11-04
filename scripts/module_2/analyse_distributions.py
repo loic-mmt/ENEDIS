@@ -18,7 +18,7 @@ import pandas as pd
 import pyarrow.dataset as ds
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 COMMUNE_PATTERN = r"(?:[0-9]{5}|2[AB][0-9]{3})"
 C_KEYS = ["commune", "category", "sector", "naf"]
 QUANTILES = {"p01": .01, "p05": .05, "q25": .25, "mediane": .5,
