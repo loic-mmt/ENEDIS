@@ -1,0 +1,3 @@
+# Optional local Kumo inference; install alongside requirements.txt.
+structured-data-models==0.2.1
+torch>=2.7
