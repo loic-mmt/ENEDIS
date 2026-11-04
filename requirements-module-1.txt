@@ -1,0 +1,2 @@
+# Dépendances supplémentaires pour l'import PostgreSQL (Python 3.10+).
+psycopg[binary]>=3.2,<4

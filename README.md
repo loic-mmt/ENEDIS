@@ -2,6 +2,10 @@
 
 Emplacements attendus des données locales : [arbo.txt](arbo.txt).
 
-Plans de projet : [module 1 — données et base](module_1/docs/plan-module-1.md), [module 2 — prédiction](docs/module_2/plan-module-2.md).
+Plans de projet : [module 1 — données et base](docs/module_1/plan-module-1.md), [module 2 — prédiction](docs/module_2/plan-module-2.md).
 
-Description des données et traitements : [dossier du module 1](module_1/README.md).
+Description des données et traitements : [dossier du module 1](docs/module_1/README.md).
+
+Base PostgreSQL/PostGIS : [installation](docs/module_1/installation-base.md) et [schéma des tables](docs/module_1/schema-base.md).
+
+Interface Python partagée : [enedis.database](docs/module_1/package-database.md) pour importer les CSV/Parquet, créer ou faire évoluer les tables et lire les données depuis les modules de prédiction/scénarios.
