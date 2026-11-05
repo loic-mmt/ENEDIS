@@ -16,14 +16,22 @@ data/
 │           │   ├── masks.parquet
 │           │   ├── truth.parquet
 │           │   └── manifest.json
-│           └── runs/<evaluation_id>/references/<run_id>/
-│               ├── predictions_linear.parquet
-│               ├── predictions_previous_day.parquet
-│               ├── predictions_seasonal_median.parquet
-│               ├── scores.parquet
-│               ├── scores_global.csv
-│               ├── scores_stratified.csv
-│               └── manifest.json
+│           └── runs/<evaluation_id>/
+│               ├── references/<run_id>/
+│               │   ├── predictions_linear.parquet
+│               │   ├── predictions_previous_day.parquet
+│               │   ├── predictions_seasonal_median.parquet
+│               │   ├── scores.parquet
+│               │   ├── scores_global.csv
+│               │   ├── scores_stratified.csv
+│               │   └── manifest.json
+│               └── kumo_forward_<groupes>/<run_id>/
+│                   ├── predictions.parquet
+│                   ├── diagnostics.parquet
+│                   ├── scores.parquet
+│                   ├── scores_global.csv
+│                   ├── scores_stratified.csv
+│                   └── manifest.json
 ├── processed/
 │   ├── production_regionale/
 │   └── rapports/

@@ -81,6 +81,8 @@ scores = score_reconstruction(truth, predictions, weight_column="duration_weight
 
 Pour la marche avant, limiter encore les observations au début de chaque trou. Pour la marche arrière, des observations ultérieures au trou sont autorisées uniquement avant `reconstruction_as_of`, fin exclue de la phase. Ce protocole concerne la reconstruction rétrospective ; une validation de prévision future devra refaire l'imputation avec les seules données disponibles à son émission.
 
+`reconstruct_with_model` réalise le premier essai avec modèle : validation uniquement, marche avant, groupes A+B+C. Il retourne les prédictions en Wh et les diagnostics par trou. Voir [l'exemple d'appel](models.md#premier-essai-de-remplissage--validation-marche-avant-abc).
+
 `score_reconstruction` calcule couverture des prédictions, MAE, RMSE et biais en MWh sur les seules observations cachées connues. Comparer aussi les erreurs sur les mêmes points lorsque les méthodes ne remplissent pas tous les trous. Les futurs rapports sépareront les durées, saisons et périodes diurnes/nocturnes ; la classification solaire demandera un point régional explicite.
 
 `weight_column="duration_weight"` pondère les erreurs agrégées selon les durées naturelles ; sans cet argument, les erreurs sont des moyennes non pondérées. La couverture en nombre de points reste indiquée, avec une couverture pondérée séparée. Conserver aussi les scores détaillés par durée. Les intervalles seront calibrés sur la phase dédiée puis évalués sur le test final ; les répétitions ne constituent pas à elles seules une mesure d'incertitude calibrée.
@@ -122,3 +124,38 @@ Les prédictions sont des tables légères par méthode, avec horodate, estimati
 - Sur les points communs des deux trous de 9 h 30 de cette validation, la MAE atteint 83,262 MWh pour l'interpolation, contre 25,468 pour J−1. Ces cas soulignent la limite de l'interpolation sur un long bloc ; davantage d'exemples seront nécessaires avant d'en tirer une règle de sélection par durée.
 
 Calibration, test final et vrais trous ne sont pas reconstruits par ce lancement. Ces résultats fixent les références à dépasser avant de retenir un modèle ou de compléter l'historique final.
+
+## Premier test Kumo
+
+Depuis la racine, petit essai forward A+B+C sur les trois premiers trous de validation :
+
+```bash
+.venv/bin/python scripts/module_2/impute_data.py \
+  --latitude 48.170199 --longitude -2.956569 \
+  --size small --num-estimators 1 --max-gaps 3
+```
+
+Le point breton est indicatif et doit rester identique pour les features et les scores jour/nuit. Les poids sont téléchargés au premier fit si nécessaire ; le calcul est local. Pour évaluer tous les trous avec ce même paramétrage, retirer `--max-gaps 3`.
+
+Sans `--evaluation-dir`, le script prépare ou retrouve l'expérience avec région 53, graine 42 et 100 trous par phase. Pour réutiliser une expérience précise, fournir son chemin avec `--evaluation-dir`. Seule sa validation est évaluée, toujours en marche avant, avec les 15 features A+B+C. Les prédictions sont bornées à zéro avant le calcul des scores.
+
+Pour comparer A+B avec le même clipping, ajouter `--groups A B`. Les masques restent identiques.
+
+Options principales : `--context-size` (2048), `--min-observations` (2), `--size` (`large` par défaut), `--num-estimators` (8), `--batch-size` (256), `--device` (`auto`) et `--model-seed` (42). `--model-seed` change Kumo sans changer les masques. `--seed` concerne uniquement la préparation de l'expérience.
+
+`--max-gaps` limite les cibles évaluées aux premiers trous chronologiques. Tous les autres masques restent appliqués ; leurs vérités ne redeviennent pas disponibles au modèle. Les scores d'un essai limité sont exploratoires ; les pondérations de l'expérience d'origine sont conservées.
+
+Le terminal affiche l'avancement et les scores globaux/jour/nuit : couverture, MAE, RMSE et biais pondérés, en MWh par demi-heure. Les prédictions restent en Wh.
+
+Résultats dans `runs/<evaluation_id>/kumo_forward_abc/<run_id>/` (ou `kumo_forward_ab` avec `--groups A B`) :
+
+- `predictions.parquet` : estimations aux seules horodates masquées évaluées, sans vérité. `prediction_wh` contient les valeurs clippées utilisées pour les scores ; `prediction_raw_wh` conserve les sorties brutes.
+- `diagnostics.parquet` : tailles du contexte, statuts, nombres de prédictions clippées et durées par trou.
+- `scores.parquet`, `scores_global.csv`, `scores_stratified.csv` : résultats pondérés et non pondérés, par durée, heure, saison et jour/nuit.
+- `manifest.json` : expérience, paramètres Kumo, coordonnées, identifiants des trous, versions des dépendances et empreintes du code et des sorties.
+
+Même expérience, mêmes paramètres et même code : résultat existant vérifié et relu, sans nouveau fit ni écrasement. Les vrais trous restent manquants ; aucune série entièrement remplie n'est produite ici.
+
+Ces scores décrivent Kumo seul. Pour le comparer aux références, recalculer les scores sur les horodates prédites communes aux méthodes comparées.
+
+Les lags à J−1, J−2, J−7 et J−365 sont calculés sur la série masquée, en jours UTC de 24 heures. Un lag dans un trou ou avant le début de l'historique reste NaN. Les anciens résultats A+B sans clipping sont conservés dans leur dossier.
