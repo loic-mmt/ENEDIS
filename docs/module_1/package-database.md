@@ -1,3 +1,5 @@
+**Mise a jour types :** les CSV connus sont desormais types automatiquement. Pour une base deja importee, suivre [la migration](migration-types.md) avant tout nouvel import. Cette consigne remplace les mentions de CSV tous en texte ci-dessous.
+
 Parcours de reference : [initialisation et evolution Python](parcours-python.md).
 
 # Utiliser la base commune depuis Python

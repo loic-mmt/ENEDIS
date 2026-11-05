@@ -22,7 +22,7 @@ CSV_TABLES = {
 def import_existing_data(db, raw_directory, force=False, csv_types=None):
     """Importer tous les CSV, Parquet et documents JSON/TXT sous raw_directory.
 
-    Les CSV restent en texte par défaut pour conserver toutes les valeurs.
+    Les CSV connus utilisent definitions.CSV_TYPES ; les autres champs restent en texte.
     csv_types peut être {nom_table: {nom_colonne_sql: type_sql}}.
     Chaque fichier est une transaction ; un échec n'annule pas les fichiers
     précédents. Relancer après correction reprend sans recharger les inchangés.

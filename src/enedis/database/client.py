@@ -190,7 +190,7 @@ class Database:
             return pd.DataFrame(cursor.fetchall(), columns=[c.name for c in cursor.description])
 
     def import_csv(self, path, table, types=None, delimiter=None, force=False):
-        """CSV en flux. Types par défaut : texte ; blancs → NULL, jamais zéro.
+        """CSV en flux. Types connus automatiques ; autres champs texte ; blancs → NULL.
 
         `types` utilise les noms SQL normalisés, par exemple {"annee": "integer"}.
         Les marqueurs non vides comme N/A restent des valeurs sources.
@@ -209,7 +209,9 @@ class Database:
             if not header:
                 raise ValueError(f"CSV sans en-tête : {path}")
             mapping = column_mapping(header)
-            columns = {name: "text" for name in mapping.values()}
+            from .definitions import CSV_TYPES
+            defaults = CSV_TYPES.get(table, {})
+            columns = {name: defaults.get(name, "text") for name in mapping.values()}
             if types:
                 if set(types) - set(columns):
                     raise ValueError("Le dictionnaire de types contient des colonnes absentes du CSV.")
@@ -263,6 +265,8 @@ class Database:
         digest = fingerprint(path)
         # DDL et données font partie de la même transaction pour ce fichier.
         with self.connection.transaction():
+            self.connection.execute("SET LOCAL DateStyle = 'ISO, YMD'")
+            self.connection.execute("SET LOCAL TimeZone = 'UTC'")
             self.create_table(table, columns)
             self.connection.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (self.schema + "." + table,))
             key = (self.schema, table, str(path))
