@@ -6,15 +6,15 @@ Parcours de reference : [initialisation et evolution Python](parcours-python.md)
 
 ## Ce qui change
 
-Le code réutilisable est maintenant dans **`src/enedis/database/`**, à côté de `prediction/` et `scenarios/`. Les collègues appellent des fonctions Python ; ces fonctions exécutent le SQL nécessaire.
+Le code réutilisable est maintenant dans **`src/enedis/database/`**, à côté de `prediction/` et `scenarios/`. Les membres du groupe appellent des fonctions Python ; ces fonctions exécutent le SQL nécessaire.
 
-**Aucune création de base ni import n’a été lancé. Le code n’a pas encore été testé sur un serveur PostgreSQL.** Les commandes de cette page sont à exécuter plus tard.
+La base est créée dans WSL, les données sont importées et la migration des types a été appliquée. Les types et comptages ont été contrôlés ; la suite complète de tests d'intégration reste à développer.
 
-Cette interface constitue le point d’entrée recommandé pour centraliser tous les fichiers actuels. Les anciens fichiers SQL `sql/module_1/` restent une proposition de modèle métier plus détaillé ; ils ne sont pas nécessaires pour utiliser cette interface. Il ne faut pas importer deux fois par les deux parcours sans choisir lequel sera utilisé par le groupe.
+Cette interface est le point d’entrée commun pour centraliser les fichiers et faire évoluer les tables depuis Python.
 
 ## 1. Installer le package et se connecter
 
-Installer PostgreSQL et les outils selon [installation-base.md](installation-base.md). PostGIS reste utile pour les futurs traitements spatiaux ; cet import générique n’en dépend pas et ne construit pas de géométries automatiquement.
+Installer PostgreSQL et les outils selon [les consignes d'installation](consignes-installation-database.md). PostGIS reste utile pour les futurs traitements spatiaux ; cet import générique n’en dépend pas et ne construit pas de géométries automatiquement.
 
 Depuis la racine du dépôt :
 
@@ -24,7 +24,7 @@ Depuis la racine du dépôt :
 
 L’installation permet ensuite d’utiliser `from enedis.database import ...` dans les scripts et notebooks de cet environnement, quel que soit leur dossier courant. Chaque collègue doit installer le package dans son propre environnement.
 
-Configurer `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` et le mot de passe via `.pgpass` ou `PGPASSWORD`. **Pour partager la même base, tous les collègues doivent pointer vers le même serveur PostgreSQL**, pas chacun vers son propre `localhost`. Le serveur doit être accessible et les comptes doivent avoir les droits appropriés. Le package ne configure pas le réseau ni les comptes.
+Configurer `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER` et le mot de passe via `.pgpass` ou `PGPASSWORD`. **Pour partager la même base, tous les membres du groupe doivent pointer vers le même serveur PostgreSQL**, pas chacun vers son propre `localhost`. Le serveur doit être accessible et les comptes doivent avoir les droits appropriés. Le package ne configure pas le réseau ni les comptes.
 
 Si la base n’existe pas, un compte ayant le droit `CREATEDB` peut la créer en Python :
 
@@ -56,7 +56,7 @@ Les fichiers sont lus en flux ou par lots. Chaque fichier est validé dans sa pr
 
 Si un fichier du même chemin a changé, ses anciennes lignes sont remplacées **dans une transaction**, sans remplacer les autres fichiers de la table. Le chemin source identifie la livraison : déplacer le dossier ou ajouter une copie d’un fichier sous un autre chemin peut créer une autre livraison, même si les données sont identiques. Utiliser un emplacement d’import stable et éviter les copies en double.
 
-La base est persistante : les collègues n’ont pas à l’importer à chaque analyse. Une fois remplie, ils utilisent uniquement les fonctions de lecture.
+La base est persistante : les membres du groupe n’ont pas à l’importer à chaque analyse. Une fois remplie, ils utilisent uniquement les fonctions de lecture.
 
 ## 3. Où vont les fichiers ?
 
