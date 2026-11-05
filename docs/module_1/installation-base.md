@@ -24,11 +24,6 @@ sudo apt install postgresql postgresql-contrib postgresql-client postgis
 
 PostGIS doit être installé **pour la version du serveur PostgreSQL**. Si `CREATE EXTENSION postgis` indique que le fichier de contrôle manque, rechercher le paquet correspondant avec `apt search postgresql | grep postgis`, puis installer le paquet adapté, par exemple `postgresql-<version>-postgis-3`. Vérifier la version réellement installée avec `psql --version` et les informations du serveur ; elles peuvent différer si plusieurs versions coexistent.
 
-Démarrer le serveur si nécessaire :
-
-```bash
-sudo service postgresql start
-```
 
 Depuis la racine de `Projet_Tuteuré`, installer le pilote Python :
 

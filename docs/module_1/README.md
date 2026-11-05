@@ -1,3 +1,7 @@
+[Guide installation et utilisation en equipe](consignes-installation-database.md)
+
+Parcours de reference : [initialisation et evolution Python](parcours-python.md).
+
 # Module 1 — Comprendre et préparer les données
 
 Ce dossier regroupe le plan et les décisions du module 1. Les scripts de traitement se trouvent dans `scripts/module_1/`, à la racine du projet. La description générale des données et leur inventaire restent dans le dossier commun `docs/data/`. Le but est de préparer la future base PostgreSQL/PostGIS pour les autres membres du projet.

@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS core.consommation_annuelle (
     nom_pnr text,
     code_ept text,
     nom_ept text,
-    CHECK (annee IS NULL OR annee BETWEEN 2011 AND 2025),
+    CHECK (annee IS NULL OR annee >= 2011),
     CHECK (nb_sites IS NULL OR nb_sites >= 0)
 );
 

@@ -1,8 +1,9 @@
 """Point d'entrée facultatif ; le code réutilisable est dans enedis.database."""
 import argparse
+from psycopg.conninfo import make_conninfo
 from pathlib import Path
 
-from enedis.database import Database, create_database, import_existing_data
+from enedis.database import Database, create_database, import_existing_data, create_source_indexes
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -19,11 +20,12 @@ def main():
     if args.create_database:
         create_database(args.create_database, args.admin_dsn)
     # La connexion aux données utilise PGDATABASE ; le nom doit correspondre.
-    with Database(schema=args.schema) as db:
+    with Database(dsn=make_conninfo(dbname=args.create_database) if args.create_database else "", schema=args.schema) as db:
         db.initialize()
         if args.import_all:
             for result in import_existing_data(db, args.raw, force=args.force):
                 print(result, flush=True)
+            create_source_indexes(db)
         else:
             print("Connexion et espaces de rangement prêts. Aucun fichier importé.")
 

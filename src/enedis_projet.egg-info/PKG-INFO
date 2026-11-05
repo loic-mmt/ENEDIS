@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: enedis-projet
+Version: 0.1.0
+Summary: Outils partagés du projet Enedis
+Requires-Python: >=3.10
+Requires-Dist: numpy
+Requires-Dist: pandas
+Provides-Extra: database
+Requires-Dist: psycopg[binary]<4,>=3.2; extra == "database"
+Requires-Dist: pyarrow<27,>=26.0.0; extra == "database"

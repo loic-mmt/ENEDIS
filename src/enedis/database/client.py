@@ -137,6 +137,27 @@ class Database:
 
     add_columns = create_table
 
+    def configure_table(self, name, columns, indexes=(), required=()):
+        """Create/extend a table atomically using Python definitions."""
+        with self.connection.transaction():
+            self.create_table(name, columns)
+            for column in required:
+                identifier(column)
+                if column not in columns:
+                    raise ValueError("Required column missing from definition.")
+                self.connection.execute(sql.SQL("ALTER TABLE {} ALTER COLUMN {} SET NOT NULL").format(
+                    sql.Identifier(self.schema, name), sql.Identifier(column)))
+            for spec in indexes:
+                fields = spec["columns"]
+                if not fields or any(c not in columns for c in fields):
+                    raise ValueError("Invalid index columns.")
+                unique = spec.get("unique", False)
+                index_name = sql_name(name + "_" + "_".join(fields) + ("_uniq" if unique else "_idx"))
+                self.connection.execute(sql.SQL("CREATE {} INDEX IF NOT EXISTS {} ON {} ({})").format(
+                    sql.SQL("UNIQUE" if unique else ""), sql.Identifier(index_name),
+                    sql.Identifier(self.schema, name),
+                    sql.SQL(", ").join(sql.Identifier(c) for c in fields)))
+
     def read_table(self, name, columns=None, filters=None, limit=1000):
         """Retourner un DataFrame ; filtres d'égalité paramétrés, LIMIT par défaut.
 

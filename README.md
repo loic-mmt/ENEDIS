@@ -1,3 +1,5 @@
+Parcours de reference : [initialisation et evolution Python](docs/module_1/parcours-python.md).
+
 # ENEDIS
 
 Emplacements attendus des données locales : [arbo.txt](arbo.txt).

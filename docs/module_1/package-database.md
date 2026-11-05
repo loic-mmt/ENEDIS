@@ -1,3 +1,5 @@
+Parcours de reference : [initialisation et evolution Python](parcours-python.md).
+
 # Utiliser la base commune depuis Python
 
 ## Ce qui change
