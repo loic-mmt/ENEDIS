@@ -7,7 +7,7 @@ sont typees. Les codes restent text. Les autres champs non specifies restent tex
 La production Parquet, deja typee, n'est pas migree.
 Les noms existants, y compris les noms longs normalises, restent identiques.
 
-## Procedure dans Ubuntu/WSL
+## Procedure dans Ubuntu/WSL : Que pour moi comme j'ai un Window
 Quitter psql avec \q, activer .venv a la racine du projet.
 Conserver les variables PGHOST, PGPORT, PGDATABASE=enedis et PGUSER=enedis_owner.
 Configurer le mot de passe via .pgpass ou saisie interactive PGPASSWORD.

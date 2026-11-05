@@ -3,10 +3,10 @@
 # Parcours commun retenu : package Python
 
 Le point d'entree est enedis.database. Le script scripts/module_1/preparer_base.py
-utilise uniquement donnees et database_meta. Les SQL dans sql/module_1 sont
-un ancien modele metier distinct : ne pas les executer pour ce parcours.
+utilise les schemas donnees et database_meta. Les definitions et les commandes SQL
+sont gerees dans src/enedis/database.
 
-## Ce qui sera cree
+## Objets créés par le parcours
 - La base demandee par --create-database, si absente et si le compte a CREATEDB.
 - Le schema donnees et le suivi database_meta.fichier.
 - Avec --import-all : tables de consommation, solaire par echelle, production
@@ -17,7 +17,7 @@ un ancien modele metier distinct : ne pas les executer pour ce parcours.
 
 Sans --import-all, le script cree seulement les schemas et le suivi.
 Le serveur PostgreSQL, les comptes et le reseau doivent deja etre configures.
-Aucune commande ci-dessous n'a ete executee pendant cette correction.
+La base du projet a été créée et alimentée dans WSL. Les commandes suivantes décrivent sa reconstruction.
 
 ## Commande commune
 Depuis la racine, apres installation du serveur :

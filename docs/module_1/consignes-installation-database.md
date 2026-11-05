@@ -3,8 +3,7 @@
 # Consignes installation database — guide pour toute l'équipe
 
 Ce guide décrit le parcours Python enedis.database (donnees / database_meta).
-Ne pas exécuter les anciens SQL de sql/module_1 pour ce parcours.
-Aucune commande d'installation ou de création n'a été exécutée pendant sa rédaction.
+La base a été créée, les sources importées et les types migrés. Les commandes de reconstruction ne sont pas à relancer sur la base actuelle.
 
 ## 1. Choisir où sera la base commune
 
@@ -12,18 +11,15 @@ Une seule machine héberge PostgreSQL et la base enedis. Chacun a une copie du
 code et son environnement Python, mais tous se connectent à cette même base.
 Git partage le code ; il ne partage pas les données PostgreSQL.
 
-Choisir un serveur universitaire ou une machine dédiée accessible au groupe.
-Ta WSL peut héberger un prototype, mais ton ordinateur et WSL devront rester
-allumés et accessibles pour les autres. Installer PostgreSQL chez chacun crée
-des bases indépendantes : cela ne les synchronise pas.
+La base est hébergée sur mon ordinateur Windows, dans Ubuntu/WSL. PostgreSQL 16 est installé et démarré. L'ordinateur et WSL doivent rester actifs pour un accès partagé. Installer PostgreSQL sur chaque poste crée des bases indépendantes.
 
-Le groupe doit fixer : responsable, adresse du serveur, port, nom de base,
-accès réseau privé/VPN ou SSH, comptes et sauvegardes. Ces paramètres ne sont
-pas encore choisis dans le dépôt.
+Le groupe doit fixer : responsable : Margot, adresse du serveur, port, nom de base : enedis,
+accès réseau privé/VPN ou SSH, comptes et sauvegardes. La base s'appelle enedis ; son port local est 5432. L'accès distant et les comptes individuels restent à configurer.
+A verifier, si chacun a une copie local pas de partage, sinon besoin d'etre sur un meme VPN ou reseau.
 
-## 2. Ce que chacun installe
+## 2. Ce que chacun installe (Pour l'instant ni toucher pas tant qu'on est pas sur de comment on partage les données) - La suite depend de ca
 
-| Outil | Responsable serveur/import | Collègues |
+| Outil | Responsable serveur/import | Membres du groupe |
 | --- | --- | --- |
 | Serveur PostgreSQL | Oui, une fois | Non |
 | Git, dépôt commun | Oui | Oui |
@@ -47,8 +43,7 @@ Exemple sur Ubuntu, sur la machine serveur :
 
 La dernière commande est à faire une seule fois si le rôle n'existe pas.
 Le compte enedis_owner sera réservé aux imports et évolutions communes.
-Si l'université fournit la base, demander un compte propriétaire et suivre
-ses consignes au lieu d'installer un second serveur.
+Cette installation est déjà réalisée sur le poste hôte. Ces commandes servent uniquement à reconstruire l'environnement sur un autre poste.
 
 ## 4. Installer le package — chacun
 
@@ -107,7 +102,7 @@ Remplacer le chemin par le dossier réel. Les tables sources sont créées penda
 l'import ; les index de consultation sont ajoutés à la fin de l'import global.
 
 Conserver un emplacement d'import stable : un autre chemin peut être considéré
-comme une autre livraison. Les collègues ne doivent pas chacun réimporter leur copie.
+comme une autre livraison. Les membres du groupe ne doivent pas chacun réimporter leur copie.
 Un fichier inchangé au même chemin est ignoré. Un fichier modifié remplace ses
 anciennes lignes. Un échec annule le fichier courant, pas les imports précédents.
 Prévoir de l'espace pour tables, index et journaux au-delà des fichiers compressés.
@@ -118,7 +113,7 @@ Pour typer les CSV à la première création, utiliser import_existing_data avec
 csv_types dans un script Python ; cette option n'existe pas encore dans la CLI.
 Une table déjà créée en texte exige ensuite une migration de types.
 
-## 7. Permettre aux collègues de se connecter
+## 7. Permettre aux membres du groupe de se connecter
 
 L'administration des comptes/réseau reste à faire une fois par le responsable.
 
@@ -128,7 +123,7 @@ chaque collègue garde ouvert ce terminal :
     ssh -N -L 15432:127.0.0.1:5432 compte_ssh@adresse_du_serveur
 
 Il utilise PGHOST=127.0.0.1 et PGPORT=15432. Le tunnel mène bien à la base distante.
-Cette commande ne rend pas à elle seule ta WSL accessible depuis Internet.
+Cette commande ne rend pas à elle seule l'instance WSL du poste hôte accessible depuis Internet.
 
 Option réseau privé/VPN : l'administrateur configure listen_addresses,
 pg_hba.conf et le pare-feu pour les clients autorisés. Les valeurs dépendent
@@ -298,3 +293,7 @@ du dépôt, sur un autre support que le serveur.
 - [Authentification et accès PostgreSQL](https://www.postgresql.org/docs/current/auth-pg-hba-conf.html)
 - [Fichier de mots de passe PostgreSQL](https://www.postgresql.org/docs/current/libpq-pgpass.html)
 - [Interface du projet](package-database.md)
+
+## Structure de référence
+
+Le [dictionnaire de la base](dictionnaire-base.md) décrit les tables, colonnes et types après migration.
