@@ -15,8 +15,9 @@ La base est hébergée sur mon ordinateur Windows, dans Ubuntu/WSL. PostgreSQL 1
 
 Le groupe doit fixer : responsable : Margot, adresse du serveur, port, nom de base : enedis,
 accès réseau privé/VPN ou SSH, comptes et sauvegardes. La base s'appelle enedis ; son port local est 5432. L'accès distant et les comptes individuels restent à configurer.
+A verifier, si chacun a une copie local pas de partage, sinon besoin d'etre sur un meme VPN ou reseau.
 
-## 2. Ce que chacun installe
+## 2. Ce que chacun installe 
 
 | Outil | Responsable serveur/import | Membres du groupe |
 | --- | --- | --- |
