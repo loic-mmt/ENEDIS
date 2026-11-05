@@ -10,49 +10,13 @@ from .imputation_evaluation import (
     load_evaluation_split, score_reconstruction,
 )
 from .utils import (
-    check_choice, check_collection, check_dataframe, check_datetime_index,
-    check_integer, check_numeric, check_real, check_timestamp,
+    check_choice, check_collection, check_integer, check_real, check_reconstruction_inputs,
 )
 
 
 METHODS = ("linear", "previous_day", "seasonal_median")
 INFORMATION = {"linear": "two_sided", "previous_day": "past_only", "seasonal_median": "past_only"}
 REFERENCE_VERSION = 1
-
-
-def _validate_inputs(observed, gaps):
-    if not isinstance(observed, pd.Series):
-        raise ValueError("Série observée attendue avec DatetimeIndex explicite.")
-    check_datetime_index(observed.index, nonempty=True, ordered=True, step="30min", regular=True)
-    index = observed.index
-    index = index.tz_convert("UTC")
-    check_numeric(observed, "Production", allow_empty=False, minimum=0)
-    values = observed.to_numpy(dtype=float, na_value=np.nan)
-    required = ["gap_id", "start", "end_exclusive", "n_slots"]
-    check_dataframe(gaps, "Blocs", required=required, nonempty=True, type_error=ValueError)
-    if gaps["gap_id"].isna().any() or gaps["gap_id"].duplicated().any():
-        raise ValueError("Identifiants de trous uniques non manquants requis.")
-
-    series = pd.Series(values, index=index.rename("horodate"))
-    blocks, used = [], set()
-
-    for _, gap in gaps.iterrows():
-        start = check_timestamp(gap["start"], "Début du trou", step="30min")
-        end = check_timestamp(gap["end_exclusive"], "Fin du trou")
-        length = gap["n_slots"]
-        check_integer(length, "n_slots", minimum=1)
-        if end - start != int(length) * STEP:
-            raise ValueError("Durée ou bornes de trou incohérentes.")
-
-        target = pd.date_range(start, end, freq="30min", inclusive="left", name="horodate")
-        if not target.isin(index).all() or used.intersection(target):
-            raise ValueError("Blocs hors série ou qui se chevauchent.")
-        if series.reindex(target).notna().any():
-            raise ValueError("Les cibles des trous doivent être masquées avant toute reconstruction.")
-        used.update(target)
-        blocks.append((gap["gap_id"], start, end, target))
-
-    return series, blocks
 
 
 def _day_keys(target, days, basis, timezone):
@@ -84,7 +48,7 @@ def reconstruct_reference(observed, gaps, method, *, days=7, min_observations=3,
     check_integer(min_observations, "min_observations", minimum=1, maximum=days)
     # Validate the timezone even if this particular series does not cross DST.
     pd.Timestamp("2024-01-01", tz="UTC").tz_convert(timezone)
-    series, blocks = _validate_inputs(observed, gaps)
+    series, blocks = check_reconstruction_inputs(observed, gaps)
     parts = []
 
     for gap_id, start, end, target in blocks:
@@ -125,15 +89,20 @@ def _empty_score():
             "mae_mwh": np.nan, "rmse_mwh": np.nan, "bias_mwh": np.nan}
 
 
-def compare_references(truth, predictions, *, timezone="Europe/Paris", latitude=None, longitude=None):
+def compare_references(truth, predictions, *, timezone="Europe/Paris", latitude=None, longitude=None,
+                       information=None):
     """Weighted and unweighted errors, including the common successful targets.
 
     Day/night is optional and requires an explicit representative point. It uses
     geometric solar elevation at the source timestamp, not an arbitrary clock
     band. Hour/season/length strata remain available without coordinates.
+    information optionally maps other model names to 'past_only'/'two_sided'.
     """
     if not predictions:
         raise ValueError("Au moins une référence est nécessaire.")
+    information = {**INFORMATION, **(information or {})}
+    for method in predictions:
+        check_choice(information.get(method), ("past_only", "two_sided"), f"information[{method}]")
 
     common = np.ones(len(truth), dtype=bool)
 
@@ -173,7 +142,7 @@ def compare_references(truth, predictions, *, timezone="Europe/Paris", latitude=
                 subset = truth.loc[scope_mask & mask]
                 weighted = score_reconstruction(subset, values, weight_column="duration_weight") if len(subset) else _empty_score()
                 plain = score_reconstruction(subset, values) if len(subset) else _empty_score()
-                rows.append({"method": method, "information": INFORMATION[method], "scope": scope,
+                rows.append({"method": method, "information": information[method], "scope": scope,
                              "stratum": stratum, "stratum_value": value, **weighted,
                              "mae_unweighted_mwh": plain["mae_mwh"],
                              "rmse_unweighted_mwh": plain["rmse_mwh"]})

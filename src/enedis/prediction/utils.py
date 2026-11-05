@@ -231,6 +231,43 @@ def check_predictions(result, index) -> np.ndarray:
     return values.astype(float)
 
 
+def check_reconstruction_inputs(observed, gaps):
+    """Validate masked half-hourly blocks and return a UTC series and block tuples."""
+    step = pd.Timedelta(minutes=30)
+    if not isinstance(observed, pd.Series):
+        raise ValueError("Série observée attendue avec DatetimeIndex explicite.")
+    check_datetime_index(observed.index, nonempty=True, ordered=True, step="30min", regular=True)
+    index = observed.index
+    index = index.tz_convert("UTC")
+    check_numeric(observed, "Production", allow_empty=False, minimum=0)
+    values = observed.to_numpy(dtype=float, na_value=np.nan)
+    required = ["gap_id", "start", "end_exclusive", "n_slots"]
+    check_dataframe(gaps, "Blocs", required=required, nonempty=True, type_error=ValueError)
+    if gaps["gap_id"].isna().any() or gaps["gap_id"].duplicated().any():
+        raise ValueError("Identifiants de trous uniques non manquants requis.")
+
+    series = pd.Series(values, index=index.rename("horodate"))
+    blocks, used = [], set()
+
+    for _, gap in gaps.iterrows():
+        start = check_timestamp(gap["start"], "Début du trou", step="30min")
+        end = check_timestamp(gap["end_exclusive"], "Fin du trou")
+        length = gap["n_slots"]
+        check_integer(length, "n_slots", minimum=1)
+        if end - start != int(length) * step:
+            raise ValueError("Durée ou bornes de trou incohérentes.")
+
+        target = pd.date_range(start, end, freq="30min", inclusive="left", name="horodate")
+        if not target.isin(index).all() or used.intersection(target):
+            raise ValueError("Blocs hors série ou qui se chevauchent.")
+        if series.reindex(target).notna().any():
+            raise ValueError("Les cibles des trous doivent être masquées avant toute reconstruction.")
+        used.update(target)
+        blocks.append((gap["gap_id"], start, end, target))
+
+    return series, blocks
+
+
 def verify_last_date(df: pd.DataFrame, date_column: str, cutoff) -> None:
     """Reject empty histories, invalid dates and observations after cutoff.
 

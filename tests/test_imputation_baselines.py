@@ -129,6 +129,20 @@ class ImputationBaselineTests(unittest.TestCase):
         self.assertTrue(common["n_total"].eq(0).all())
         self.assertTrue(common["mae_mwh"].isna().all())
 
+    def test_other_models_use_same_scores_with_explicit_information(self):
+        index = self.series(2).index
+        truth = pd.DataFrame({"true_value_wh": [1e6, 2e6], "duration_weight": [1., 2.], "n_slots": 1}, index=index)
+        predictions = {"kumo": pd.DataFrame({"prediction_wh": [2e6, 2e6]}, index=index)}
+        scores = compare_references(truth, predictions, information={"kumo": "past_only"})
+        self.assertTrue(scores.information.eq("past_only").all())
+        overall = scores.loc[scores.scope.eq("all_targets") & scores.stratum.eq("overall")].iloc[0]
+        self.assertAlmostEqual(overall.mae_mwh, 1 / 3)
+        combined = compare_references(truth, {**predictions, "linear": predictions["kumo"]},
+                                       information={"kumo": "past_only"})
+        self.assertEqual(set(combined.information), {"past_only", "two_sided"})
+        with self.assertRaises(ValueError):
+            compare_references(truth, predictions)
+
     def test_unmasked_targets_invalid_grid_and_invalid_options_rejected(self):
         source = self.series()
         gaps = self.gap(source, 48)
