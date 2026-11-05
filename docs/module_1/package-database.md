@@ -13,6 +13,7 @@ La base est créée dans WSL, les données sont importées et la migration des t
 Cette interface est le point d’entrée commun pour centraliser les fichiers et faire évoluer les tables depuis Python.
 
 ## 1. Installer le package et se connecter
+A voir plus tards
 
 Installer PostgreSQL et les outils selon [les consignes d'installation](consignes-installation-database.md). PostGIS reste utile pour les futurs traitements spatiaux ; cet import générique n’en dépend pas et ne construit pas de géométries automatiquement.
 

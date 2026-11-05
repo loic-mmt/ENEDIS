@@ -17,7 +17,7 @@ Le groupe doit fixer : responsable : Margot, adresse du serveur, port, nom de ba
 accès réseau privé/VPN ou SSH, comptes et sauvegardes. La base s'appelle enedis ; son port local est 5432. L'accès distant et les comptes individuels restent à configurer.
 A verifier, si chacun a une copie local pas de partage, sinon besoin d'etre sur un meme VPN ou reseau.
 
-## 2. Ce que chacun installe 
+## 2. Ce que chacun installe (Pour l'instant ni toucher pas tant qu'on est pas sur de comment on partage les données) - La suite depend de ca
 
 | Outil | Responsable serveur/import | Membres du groupe |
 | --- | --- | --- |
