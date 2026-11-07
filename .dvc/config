@@ -1,0 +1,6 @@
+[core]
+    remote = stockage_drive
+['remote "drive"']
+    url = gdrive://1tNs-seE2AdrFcuvxCbMY1z8Pd_zs9tjf
+['remote "stockage_drive"']
+    url = gdrive://1tNs-seE2AdrFcuvxCbMY1z8Pd_zs9tjf

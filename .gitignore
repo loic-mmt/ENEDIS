@@ -1,5 +1,7 @@
 /.venv
-/data
+/data/*
+!/data/*.dvc
+!/data/.gitignore
 .DS_Store
 __pycache__/
 
