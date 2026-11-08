@@ -13,7 +13,7 @@ from enedis.prediction.features import PRODUCTION_FEATURE_GROUPS, build_producti
 from enedis.prediction.imputation_evaluation import (
     ENERGY, SITES, STEP, load_evaluation_split, prepare_evaluation, score_reconstruction,
 )
-from enedis.prediction.imputation_models import reconstruct_with_model
+from enedis.prediction.imputation_models import prepare_model_features, reconstruct_with_model
 
 
 class RecordingRegressor:
@@ -110,6 +110,20 @@ class ReconstructionTests(unittest.TestCase):
                 pd.testing.assert_frame_equal(original_arg, actual_arg)
             else:
                 pd.testing.assert_series_equal(original_arg, actual_arg)
+
+    def test_reused_features_preserve_predictions_and_contexts(self):
+        expected_model, actual_model = RecordingRegressor(), RecordingRegressor()
+        expected, _ = self.run_model(model=expected_model)
+        features = prepare_model_features(self.inputs, self.gaps, latitude=48., longitude=-3.)
+        before = features.copy(deep=True)
+        with patch('enedis.prediction.imputation_models.build_production_features') as builder:
+            actual, _ = self.run_model(model=actual_model, features=features, quiet=True)
+        builder.assert_not_called()
+        pd.testing.assert_frame_equal(actual, expected)
+        pd.testing.assert_frame_equal(features, before)
+        for expected_fit, actual_fit in zip(expected_model.fits, actual_model.fits):
+            pd.testing.assert_frame_equal(expected_fit[0], actual_fit[0])
+            pd.testing.assert_series_equal(expected_fit[1], actual_fit[1])
 
     def test_predictions_and_unobserved_labels_never_enter_later_context(self):
         model = RecordingRegressor()

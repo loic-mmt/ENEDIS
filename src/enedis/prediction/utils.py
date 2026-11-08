@@ -77,12 +77,14 @@ def check_dataframe(df, name="Données", *, required=(), nonempty=False,
     """Check table structure without changing its contents or order."""
     if not isinstance(df, pd.DataFrame):
         raise type_error(f"{name} doit être un DataFrame pandas.")
+
     if not df.columns.is_unique:
         raise ValueError(f"Noms de colonnes dupliqués dans {name}.")
 
     missing = [column for column in required if column not in df.columns]
     if missing:
         raise ValueError(f"Colonnes obligatoires absentes dans {name} : {', '.join(missing)}")
+
     if nonempty and len(df) == 0:
         raise ValueError(f"{name} vide.")
     if df.shape[1] < min_columns:
@@ -116,6 +118,7 @@ def check_numeric(values: pd.Series, name=None, *, allow_missing=True,
     """
     name = name if name is not None else values.name
     observed = values.dropna()
+
     if not allow_missing and values.isna().any():
         raise ValueError(f"{name} contient des valeurs manquantes.")
     if allow_empty and observed.empty:
@@ -132,6 +135,7 @@ def check_numeric(values: pd.Series, name=None, *, allow_missing=True,
         # Keep complex values intact when a legacy caller explicitly allows them.
         if not np.isfinite(numbers).all():
             raise ValueError(f"{name} contient des valeurs non finies.")
+
     if minimum is not None and (numbers < minimum).any():
         raise ValueError(f"{name} doit contenir des valeurs supérieures ou égales à {minimum}.")
     if integer and (numbers % 1 != 0).any():
@@ -148,6 +152,7 @@ def check_datetime_index(index, name="Horodates", *, aware=True, unique=True,
 
     if nonempty and len(index) == 0:
         raise ValueError(f"{name} vide.")
+
     if unique and index.has_duplicates:
         raise ValueError(f"{name} contient des dates répétées.")
     if ordered and not index.is_monotonic_increasing:
@@ -178,9 +183,9 @@ def check_aligned_series(values, index, name="y") -> None:
         raise ValueError(f"{name} doit être une Series alignée sur l'index des features.")
 
 
-def check_feature_columns(X, expected=None) -> None:
+def check_feature_columns(X, expected=None, *, allow_empty=False) -> None:
     """Require named features and, if supplied, exactly the fitted schema."""
-    check_dataframe(X, "X", min_columns=1, string_columns=True, type_error=ValueError)
+    check_dataframe(X, "X", min_columns=0 if allow_empty else 1, string_columns=True, type_error=ValueError)
     if expected is not None and set(X.columns) != set(expected):
         raise ValueError("Les features doivent correspondre à celles du fit.")
 

@@ -3,5 +3,7 @@ pandas
 matplotlib
 pvlib
 statsmodels
+joblib>=1.5,<2
+threadpoolctl>=3.6,<4
 pyarrow>=26.0.0,<27
 scikit-learn>=1.4,<2

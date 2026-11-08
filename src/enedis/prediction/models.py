@@ -6,15 +6,24 @@ from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_is_fitted
 
 from .utils import (
-    check_choice, check_collection, check_column, check_dataframe,
-    check_datetime_index, check_feature_columns, check_feature_type,
-    check_integer, check_predictions, check_regression_target, check_timestamp,
+    check_choice,
+    check_collection,
+    check_column,
+    check_dataframe,
+    check_datetime_index,
+    check_feature_columns,
+    check_feature_type,
+    check_integer,
+    check_predictions,
+    check_regression_target,
+    check_timestamp,
 )
 
 
 def _ordered_features(model, X: pd.DataFrame) -> pd.DataFrame:
     expected = getattr(model, "feature_names_in_", None)
-    check_feature_columns(X, expected)
+    check_feature_columns(X, expected, allow_empty=not getattr(model, "uses_features", True))
+
     if expected is not None:
         return X.loc[:, list(expected)]  # Ordre des colonnes utilisé au fit.
 
@@ -76,12 +85,14 @@ class KumoTabularRegressor(RegressorMixin, BaseEstimator):
             series = data[column]
             expected = None if fitting else self.feature_stypes_[column]  # Types fixés au fit.
             stypes[column] = check_feature_type(series, expected)
+
             if stypes[column] == "numerical":
                 data[column] = series.to_numpy(dtype=float, na_value=np.nan)
             else:
                 data[column] = series.astype("string")
 
         table = self._sdm.TableTensor.from_pandas(data, stypes=stypes, device=self.device_)
+
         if fitting:
             self.feature_stypes_ = stypes
 
@@ -103,6 +114,7 @@ class KumoTabularRegressor(RegressorMixin, BaseEstimator):
 
         if self.context_size is not None:
             check_integer(self.context_size, "context_size", minimum=2)
+
         check_choice(self.size, ("small", "medium", "large"), "size")
         check_integer(self.random_state, "random_state")
         check_regression_target(X, y)
@@ -114,6 +126,7 @@ class KumoTabularRegressor(RegressorMixin, BaseEstimator):
             check_datetime_index(X.index, "Horodates du contexte", aware=False)
             order = np.argsort(X.index.asi8, kind="stable")
             X, y = X.iloc[order], y.iloc[order]
+
         if self.context_size is not None:
             # Garder les observations les plus récentes.
             X, y = X.iloc[-self.context_size:], y.iloc[-self.context_size:]

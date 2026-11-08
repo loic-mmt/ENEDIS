@@ -44,9 +44,9 @@ class ImputeDataTests(unittest.TestCase):
             code = SCRIPT.main(self.args if arguments is None else arguments)
         return code, output.getvalue(), errors.getvalue()
 
-    def runs(self):
+    def runs(self, model="kumo"):
         region = self.evaluation.parent.parent
-        return sorted((region / "runs" / self.evaluation.name).glob("kumo_forward_*/*/manifest.json"))
+        return sorted((region / "runs" / self.evaluation.name).glob(f"{model}_forward*/*/manifest.json"))
 
     def test_validation_exports_metrics_progress_cache_and_preserves_inputs(self):
         before = {path: (path.read_bytes(), path.stat().st_mtime_ns)
@@ -56,6 +56,11 @@ class ImputeDataTests(unittest.TestCase):
             self.assertEqual((code, errors), (0, ""))
             self.assertIn("[1/2]", output)
             self.assertIn("[2/2]", output)
+            iterations = [line for line in output.splitlines() if line.startswith('[')]
+            self.assertEqual(len(iterations), 2)
+            for line in iterations:
+                self.assertRegex(line, r'^\[\d/2\] \[DummyRegressor\] Fit time elapsed: \d+\.\d{2}s - Pred time elapsed: \d+\.\d{2}s$')
+            self.assertNotIn('\r', output)
             self.assertIn("mae_mwh", output)
             constructor.assert_called_once_with(size="small", device="cpu", num_estimators=1,
                                                 batch_size=256, random_state=42, context_size=None)
@@ -191,6 +196,67 @@ class ImputeDataTests(unittest.TestCase):
         self.assertEqual((code, errors), (0, ""))
         manifest = json.loads(self.runs()[0].read_text())
         self.assertEqual(manifest["evaluation_id"], self.evaluation.name)
+
+    def test_sarima_serial_and_parallel_use_same_mask_and_forecasts(self):
+        arguments = self.args + ["--model", "sarima", "--order", "1", "0", "0",
+                                 "--seasonal-order", "0", "1", "0", "4", "--maxiter", "20"]
+        self.assertEqual(self.call(arguments)[0], 0)
+        self.assertEqual(self.call(arguments + ["--workers", "2"])[0], 0)
+        paths = self.runs("sarima")
+        self.assertEqual(len(paths), 2)
+        first = pd.read_parquet(paths[0].parent / "predictions.parquet")
+        second = pd.read_parquet(paths[1].parent / "predictions.parquet")
+        pd.testing.assert_frame_equal(first, second)
+        for path in paths:
+            meta = json.loads(path.read_text())
+            self.assertEqual(meta["groups"], [])
+            self.assertEqual(meta["split"], "validation")
+            self.assertEqual(meta["n_targets"], 4)
+            diag = pd.read_parquet(path.parent / "diagnostics.parquet")
+            self.assertIn("converged", diag)
+            self.assertTrue(diag.n_time_steps.ge(diag.n_context).all())
+
+    def test_sarimax_abc_serial_parallel_and_cache(self):
+        arguments = self.args + ["--model", "sarimax", "--order", "0", "0", "0",
+                                 "--seasonal-order", "0", "0", "0", "0", "--maxiter", "10"]
+        for options in (arguments, arguments + ["--workers", "2"]):
+            code, output, errors = self.call(options)
+            self.assertEqual((code, errors), (0, ""))
+            iterations = [line for line in output.splitlines() if line.startswith('[')]
+            self.assertEqual(len(iterations), 2)
+            for line in iterations:
+                self.assertRegex(line, r'^\[\d/2\] \[SARIMAXRegressor\] Fit time elapsed: \d+\.\d{2}s - Pred time elapsed: \d+\.\d{2}s$')
+        paths = self.runs("sarimax")
+        self.assertEqual(len(paths), 2)
+        first = pd.read_parquet(paths[0].parent / "predictions.parquet")
+        second = pd.read_parquet(paths[1].parent / "predictions.parquet")
+        pd.testing.assert_frame_equal(first, second)
+        for path in paths:
+            meta = json.loads(path.read_text())
+            self.assertEqual(meta["groups"], ["A", "B", "C"])
+            self.assertEqual(path.parent.parent.name, "sarimax_forward_abc")
+            self.assertEqual(meta["n_targets"], 4)
+            self.assertTrue(first.method.eq("SARIMAXRegressor").all())
+        code, output, errors = self.call(arguments)
+        self.assertEqual((code, errors), (0, ""))
+        self.assertIn("aucun nouveau fit", output)
+
+    def test_chatty_model_does_not_pollute_iteration_lines(self):
+        class ChattyRegressor(DummyRegressor):
+            def fit(self, X, y):
+                print('Bruit du fit')
+                print('Barre externe', file=sys.stderr)
+                return super().fit(X, y)
+
+            def predict(self, X):
+                print('Bruit de la prédiction')
+                return super().predict(X)
+
+        with patch.object(SCRIPT, "KumoTabularRegressor", return_value=ChattyRegressor()):
+            code, output, errors = self.call()
+        self.assertEqual((code, errors), (0, ""))
+        self.assertNotIn('Bruit', output)
+        self.assertEqual(output.count('[ChattyRegressor]'), 2)
 
 
 if __name__ == "__main__":
