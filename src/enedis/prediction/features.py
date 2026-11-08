@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from functools import wraps
 
 import numpy as np
 import pandas as pd
@@ -123,6 +124,14 @@ def _production_frame(df: pd.DataFrame) -> pd.DataFrame:
     return result.reindex(grid)  # Créneaux absents ajoutés avec NaN, sans remplissage.
 
 
+def _prepare_frame(function):
+    @wraps(function)
+    def create(df, *args, **kwargs):
+        return function(_production_frame(df), *args, **kwargs)
+
+    return create
+
+
 def _cutoff(as_of) -> pd.Timestamp | None:
     if as_of is None:
         return None
@@ -161,13 +170,14 @@ def _ratio(numerator, denominator):
     return np.where(np.isfinite(values) & (np.asarray(denominator) > 0), values, np.nan)
 
 
+@_prepare_frame
 def create_calendar_features(df: pd.DataFrame, *, timezone="Europe/Paris") -> pd.DataFrame:
     """Group A. Calendar of the target instant in local time, on a regular UTC index.
 
     Keep input columns. Insert missing half-hours without filling observations.
     season is categorical (winter/spring/summer/autumn), to encode in training.
     """
-    result = _production_frame(df)
+    result = df
     local = result.index.tz_convert(timezone)
     hours = local.hour + local.minute / 60.
     doy = local.dayofyear + hours / 24.
@@ -187,6 +197,7 @@ def create_calendar_features(df: pd.DataFrame, *, timezone="Europe/Paris") -> pd
     return result
 
 
+@_prepare_frame
 def create_astro_features(
     df: pd.DataFrame, latitude: float, longitude: float, *, timezone="Europe/Paris",
 ) -> pd.DataFrame:
@@ -200,7 +211,7 @@ def create_astro_features(
 
     from pvlib import solarposition
 
-    result = _production_frame(df)
+    result = df
     position = solarposition.get_solarposition(result.index, latitude, longitude)
     result["solar_elevation"] = position["elevation"]
     result["solar_azimuth"] = position["azimuth"]
@@ -216,6 +227,7 @@ def create_astro_features(
     return result
 
 
+@_prepare_frame
 def create_lag_features(
     df: pd.DataFrame, value_column="total_energie_injectee_wh", *,
     basis="utc", timezone="Europe/Paris", as_of=None,
@@ -226,7 +238,7 @@ def create_lag_features(
     earlier local date; ambiguous/nonexistent historical hours return NaN.
     as_of excludes observations at/after a fixed forecast issuance, if supplied.
     """
-    result = _production_frame(df)
+    result = df
     observed = _observed(result, value_column, as_of)
 
     for days in (1, 2, 7, 365):
@@ -235,6 +247,7 @@ def create_lag_features(
     return result
 
 
+@_prepare_frame
 def create_rolling_features(
     df: pd.DataFrame, value_column="total_energie_injectee_wh", *, as_of=None,
 ) -> pd.DataFrame:
@@ -243,7 +256,7 @@ def create_rolling_features(
     7 days = 336 half-hours; 30 days = 1440. std uses ddof=1.
     ramp_rate = Y[t-30min] - Y[t-60min], not Y[t] - Y[t-30min].
     """
-    result = _production_frame(df)
+    result = df
     observed = _observed(result, value_column, as_of)
     week = observed.rolling(pd.Timedelta(days=7), closed="left", min_periods=7 * SLOTS_PER_DAY)
     result["rolling_mean_7d"] = week.mean()
@@ -255,9 +268,10 @@ def create_rolling_features(
     return result
 
 
+@_prepare_frame
 def create_sites_features(
     df: pd.DataFrame, value_column="total_energie_injectee_wh", sites_column="nb_points_injection",
-    *, as_of=None, epsilon=1e-9,
+    *, as_of=None, epsilon=1e-9, _q95=None,
 ) -> pd.DataFrame:
     """Group E. Past site counts and growth proxies; no current target-time counts.
 
@@ -268,7 +282,7 @@ def create_sites_features(
     Units of epsilon match value_column. A zero site reference gives NaN.
     """
     check_real(epsilon, "epsilon", positive=True)
-    result = _production_frame(df)
+    result = df
     production = _observed(result, value_column, as_of)
     sites = _observed(result, sites_column, as_of, integer=True).shift(1)  # Comptage précédent, jamais celui de t.
     result["n_sites_solar"] = sites
@@ -277,12 +291,14 @@ def create_sites_features(
         past = _lag(sites, days)
         result[name] = _ratio(sites.to_numpy() - past, past)
 
-    high = production.rolling(pd.Timedelta(days=30), closed="left", min_periods=30 * SLOTS_PER_DAY).quantile(.95)
+    high = (_q95 if _q95 is not None else
+            production.rolling(pd.Timedelta(days=30), closed="left", min_periods=30 * SLOTS_PER_DAY).quantile(.95))
     result["growth_yoy_q95"] = _ratio(high.to_numpy(), _lag(high, 365) + epsilon)
 
     return result
 
 
+@_prepare_frame
 def create_decomposition_features(
     df: pd.DataFrame, value_column="total_energie_injectee_wh", *, as_of=None,
     period: int = 48, history_days: int = 30, refit_every="1D",
@@ -313,7 +329,7 @@ def create_decomposition_features(
 
     from statsmodels.tsa.seasonal import STL
 
-    result = _production_frame(df)
+    result = df
     production = _observed(result, value_column, as_of)
     limit = _cutoff(as_of)
     anchors = result.index.floor(interval)
@@ -374,23 +390,25 @@ def build_production_features(
     _cutoff(as_of)
 
     result = _production_frame(df)
+    # __wrapped__ appelle le calcul seul : la grille est déjà préparée ici.
     if "A" in selected:
-        result = create_calendar_features(result, timezone=timezone)
+        result = create_calendar_features.__wrapped__(result, timezone=timezone)
 
     if "B" in selected:
-        result = create_astro_features(result, latitude, longitude, timezone=timezone)
+        result = create_astro_features.__wrapped__(result, latitude, longitude, timezone=timezone)
 
     if "C" in selected:
-        result = create_lag_features(result, value_column, basis=lag_basis, timezone=timezone, as_of=as_of)
+        result = create_lag_features.__wrapped__(result, value_column, basis=lag_basis, timezone=timezone, as_of=as_of)
 
     if "D" in selected:
-        result = create_rolling_features(result, value_column, as_of=as_of)
+        result = create_rolling_features.__wrapped__(result, value_column, as_of=as_of)
 
     if "E" in selected:
-        result = create_sites_features(result, value_column, sites_column, as_of=as_of)
+        result = create_sites_features.__wrapped__(result, value_column, sites_column, as_of=as_of,
+                                                   _q95=result["rolling_q95_30d"] if "D" in selected else None)
 
     if "F" in selected:
-        result = create_decomposition_features(
+        result = create_decomposition_features.__wrapped__(
             result, value_column, as_of=as_of, period=decomposition_period,
             history_days=decomposition_history_days, refit_every=decomposition_refit_every)
 

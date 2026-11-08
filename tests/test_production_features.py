@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -16,6 +17,7 @@ from enedis.prediction.features import (
     create_rolling_features,
     create_sites_features,
 )
+from enedis.prediction import features
 
 
 class ProductionFeatureTests(unittest.TestCase):
@@ -193,6 +195,23 @@ class ProductionFeatureTests(unittest.TestCase):
         custom = self.frame(60).rename(columns={"total_energie_injectee_wh": "production_mwh"})
         result = create_lag_features(custom, value_column="production_mwh")
         self.assertEqual(result.iloc[48]["lag_1d"], 1)
+
+    def test_builder_prepares_once_and_matches_selected_standalone_groups(self):
+        frame = self.frame(32 * 48 + 1)
+        cutoff = frame.iloc[31 * 48]['horodate']
+        groups = ('E', 'A', 'D', 'C')
+        columns = [name for group in groups for name in PRODUCTION_FEATURE_GROUPS[group]]
+        with patch.object(features, '_production_frame', wraps=features._production_frame) as prepare:
+            actual = build_production_features(frame, groups, as_of=cutoff)
+        prepare.assert_called_once()
+        expected = pd.concat([
+            create_sites_features(frame, as_of=cutoff)[list(PRODUCTION_FEATURE_GROUPS['E'])],
+            create_calendar_features(frame)[list(PRODUCTION_FEATURE_GROUPS['A'])],
+            create_rolling_features(frame, as_of=cutoff)[list(PRODUCTION_FEATURE_GROUPS['D'])],
+            create_lag_features(frame, as_of=cutoff)[list(PRODUCTION_FEATURE_GROUPS['C'])],
+        ], axis=1)
+        self.assertEqual(actual.columns.tolist(), columns)
+        pd.testing.assert_frame_equal(actual, expected)
 
     def test_explicit_offsets_distinguish_repeated_local_hours(self):
         frame = pd.DataFrame({"horodate": ["2024-10-27T02:00:00+02:00", "2024-10-27T02:00:00+01:00"]})
