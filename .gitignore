@@ -1,5 +1,6 @@
 /.venv
 /data/raw/
+/data/imputed
 /data/processed/
 .DS_Store
 __pycache__/
