@@ -1,4 +1,4 @@
-"""Reconstruire la base locale de reference, sans DVC ni acces distant."""
+"""Reconstruire la base locale de reference"""
 import argparse
 import getpass
 import hashlib

@@ -1,25 +1,24 @@
-Parcours retenu pour le groupe : [installation locale de la base, sans DVC](installation-locale-equipe.md).
-
 # Module 1 — Données et base PostgreSQL
 
-J'ai regroupé dans ce module la préparation des sources, leur import et l'accès
-à la base depuis Python. La base enedis est hébergée sur mon ordinateur Windows,
-dans Ubuntu/WSL, avec PostgreSQL 16.
+Ce module regroupe la préparation des sources, leur import et l'accès depuis Python.
+Chaque membre dispose d'une copie locale nommée enedis. La base de référence a
+été préparée dans Ubuntu/WSL ; le guide d'installation couvre macOS et Windows.
 
-## Documentation actuelle
+## Documentation
 
+- [Installation locale et utilisation Python](installation-locale-equipe.md) : guide unique pour le groupe.
 - [Dictionnaire de la base](dictionnaire-base.md) : 16 tables de données, 234 colonnes, types et suivi des imports.
-- [Consignes d'installation et d'accès](consignes-installation-database.md) : environnement du groupe et connexion.
-- [Interface Python](package-database.md) : fonctions et exemples.
-- [Parcours Python](parcours-python.md) : création et évolution.
-- [Migration des types](migration-types.md) : conversion des anciennes tables texte.
+- [Migration des types](migration-types.md) : réparation des anciennes bases importées en texte.
 - [Décisions sur les données](decisions-traitement.md) : résultats du diagnostic.
-- [Plan du module](plan-module-1.md) : objectifs et travaux restants.
+- [Plan du module](plan-module-1.md) : objectifs et travaux.
 
 ## État actuel
 
-Les données sont importées dans donnees. Le schéma database_meta suit les fichiers.
-Les types ont été migrés et les comptages de consommation vérifiés.
-L'accès distant des membres du groupe reste à configurer.
+Les sources sont importées dans donnees ; database_meta suit les fichiers.
+Le script installer_base_locale.py contrôle la conformité des sources et reconstruit
+la base avec les types actuels. Les modifications locales ne se synchronisent pas.
+Les définitions Python sont partagées par Git et appliquées sur chaque poste.
 Les vues métier, le stockage des résultats et le versionnement des expériences
 restent à compléter.
+
+- [Audit fichiers/base et espace disque](audit-imports.md) : contrôles de provenance, volumes et index.

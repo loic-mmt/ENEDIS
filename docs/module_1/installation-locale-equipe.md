@@ -93,7 +93,7 @@ Conserver ensuite ce chemin stable : il sert au suivi des imports.
 
 ## 5. Créer et alimenter la base
 
-Sur Mac (en remplaçant postgres si le compte local porte un autre nom) :
+Sur Mac  :
 
     python scripts/module_1/installer_base_locale.py --user postgres
 
@@ -220,3 +220,52 @@ Il ne prouve pas à lui seul la validité métier de chaque observation.
 Les index sont créés par le même catalogue ; la suite de tests d'intégration
 multiplateforme reste à compléter. La base existante n'est pas modifiée pendant
 la préparation de ce guide et du script.
+
+## Référence rapide du package Python
+
+Les fonctions sont accessibles depuis enedis.database après installation du package.
+
+| Fonction | Utilisation |
+| --- | --- |
+| Database() | Connexion PostgreSQL, à utiliser avec with |
+| create_database() | Création d'une base absente ; utilisée par le script d'installation |
+| db.create_table() / db.add_columns() | Création et ajout de colonnes |
+| db.configure_table() | Colonnes, champs obligatoires et index dans une transaction |
+| db.read_table() | Lecture en DataFrame, filtres d'égalité, limite par défaut 1000 |
+| db.import_csv() / db.import_parquet() | Import d'une source supplémentaire |
+| import_existing_data() | Import des fichiers d'un dossier |
+| create_source_indexes() | Index de consultation des tables sources |
+
+Les types des CSV connus sont définis dans src/enedis/database/definitions.py.
+Les champs non définis restent en texte. Les Parquet utilisent leurs types sources.
+Les colonnes de provenance _source_file et _imported_at sont réservées.
+
+Exemple d'ajout de colonne :
+
+    from enedis.database import Database
+
+    with Database() as db:
+        db.add_columns("resultats_exemple", {"incertitude_mwh": "numeric"})
+
+Exemple d'import d'une nouvelle source, distinct de la reconstruction de référence :
+
+    with Database() as db:
+        db.import_csv(
+            "/chemin/meteo.csv",
+            table="meteo",
+            delimiter=";",
+            types={"temperature": "numeric", "date_mesure": "date"},
+        )
+
+Le chemin identifie la livraison. Un fichier modifié remplace ses anciennes
+lignes dans une transaction ; les fichiers précédents restent validés si un
+autre import échoue. Un fichier déplacé peut devenir une autre livraison.
+Les colonnes calculées ne doivent pas être stockées dans les tables sources :
+le remplacement des lignes ferait perdre ces enrichissements.
+Les fonctions de lecture par lots et d'écriture générale des résultats restent
+à développer. Les suppressions, renommages et changements de types nécessitent
+des migrations explicites.
+
+La [migration des types](migration-types.md) concerne uniquement les bases
+créées avant le typage automatique. Le [dictionnaire](dictionnaire-base.md)
+décrit les tables et colonnes de référence.
