@@ -11,12 +11,13 @@ from collections import Counter, defaultdict
 from pathlib import Path
 import sys
 
-import numpy as np
 import pandas as pd
-import pyarrow.dataset as ds
 
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "src"))
+from enedis.prediction.data import csv_batches, solar_batches, valid_measure
+
 REGIONS = {
     "11": "Île-de-France", "24": "Centre-Val de Loire",
     "27": "Bourgogne-Franche-Comté", "28": "Normandie",
@@ -26,11 +27,6 @@ REGIONS = {
 }
 
 
-def valid_measure(values):
-    numbers = pd.to_numeric(values, errors="coerce").to_numpy(dtype=float, na_value=np.nan)
-    return pd.Series(np.isfinite(numbers) & (numbers >= 0), index=values.index)
-
-
 def read_consumption(path, start_year, end_year, chunksize):
     columns = ["Année", "Code Commune", "Code Région", "CODE CATEGORIE CONSOMMATION",
                "Conso totale (MWh)"]
@@ -38,9 +34,10 @@ def read_consumption(path, start_year, end_year, chunksize):
     communes = defaultdict(lambda: [0, 0, 0, 0])  # present, incomplete, RES present, RES incomplete
     annual = defaultdict(Counter)
     diagnostics = Counter()
-    for chunk in pd.read_csv(path, usecols=columns, dtype="string", keep_default_na=False,
-                             encoding="utf-8-sig", chunksize=chunksize):
+
+    for chunk in csv_batches(path, columns, chunksize):
         diagnostics["rows"] += len(chunk)
+
         years = pd.to_numeric(chunk["Année"].str.strip(), errors="coerce")
         regions = chunk["Code Région"].str.strip()
         codes = chunk["Code Commune"].str.strip()
@@ -49,6 +46,7 @@ def read_consumption(path, start_year, end_year, chunksize):
                     & regions.isin(REGIONS) & codes.ne(""))
         diagnostics["invalid_key_rows"] += int((~valid_year | regions.eq("") | codes.eq("")).sum())
         diagnostics["outside_window_or_regions"] += int((~eligible & valid_year & regions.ne("") & codes.ne("")).sum())
+
         frame = pd.DataFrame({
             "region": regions[eligible], "commune": codes[eligible],
             "year": years[eligible].astype(int),
@@ -59,6 +57,7 @@ def read_consumption(path, start_year, end_year, chunksize):
         grouped = frame.groupby(["region", "commune", "year"], sort=False).agg(
             rows=("known", "size"), known=("known", "sum"),
             res=("res", "sum"), res_known=("res_known", "sum"))
+
         for (region, commune, year), rows, known, res, res_known in (
             (key, *values) for key, values in zip(grouped.index, grouped.itertuples(index=False, name=None))
         ):
@@ -73,6 +72,7 @@ def read_consumption(path, start_year, end_year, chunksize):
                     state[3] |= bit
             annual[(region, year)].update(rows=int(rows), known=int(known),
                                            res=int(res), res_known=int(res_known))
+
     # Complete means all published measurements are usable, not all sectors exist.
     for (region, _), (present, incomplete, res_present, res_incomplete) in communes.items():
         for year in range(start_year, end_year + 1):
@@ -84,11 +84,12 @@ def read_consumption(path, start_year, end_year, chunksize):
             if res_present & bit:
                 stats["res_communes"] += 1
                 stats["res_all_published_known"] += not bool(res_incomplete & bit)
+
     return annual, communes, diagnostics
 
 
 def read_pv(path, start_year, end_year):
-    frame = pd.read_csv(path, dtype="string", keep_default_na=False, encoding="utf-8-sig")
+    frame = pd.concat(csv_batches(path), ignore_index=True)
     selected = frame.loc[frame["type_installation"].str.strip().eq("Photovoltaïque")].copy()
     dates = pd.to_datetime(selected["date_mesure"], errors="coerce", format="mixed")
     selected["year"] = dates.dt.year
@@ -96,13 +97,16 @@ def read_pv(path, start_year, end_year):
     selected["known"] = valid_measure(selected["valeur"])
     eligible = selected["region"].isin(REGIONS) & selected["year"].between(start_year, end_year)
     annual = {}
+
     for key, group in selected.loc[eligible].groupby(["region", "year"], sort=False):
         annual[(key[0], int(key[1]))] = {
             "rows": len(group), "known": int(group["known"].sum()),
             "usable": len(group) == 1 and bool(group["known"].iloc[0]),
         }
+
     diagnostics = {"pv_rows": len(selected), "invalid_dates": int(dates.isna().sum()),
                    "outside_window_or_regions": int((dates.notna() & ~eligible).sum())}
+
     return annual, diagnostics
 
 
@@ -119,19 +123,11 @@ def expected_slots(month):
 
 
 def read_production(path, batch_size):
-    files = sorted(Path(path).rglob("*.parquet"))
-    if not files:
-        raise ValueError(f"Aucun Parquet de production dans {path}.")
-    # metadata.json lives alongside the Parquet files and must not be scanned.
-    dataset = ds.dataset([str(file) for file in files], format="parquet", partitioning="hive")
-    solar = ((ds.field("filiere_de_production") == "F5 : Solaire")
-             & (ds.field("plage_de_puissance_injection") == "P0 : Total toutes puissances"))
     columns = ["code_region", "horodate", "total_energie_injectee_wh"]
     months = defaultdict(lambda: {"rows": 0, "seen": set(), "valid": set(), "duplicates": set()})
     diagnostics = Counter()
     first = last = None
-    for batch in dataset.scanner(columns=columns, filter=solar, batch_size=batch_size).to_batches():
-        frame = batch.to_pandas()
+    for frame in solar_batches(path, columns, batch_size=batch_size):
         diagnostics["rows"] += len(frame)
         regions = frame["code_region"].astype("string").str.strip()
         timestamps = pd.to_datetime(frame["horodate"], utc=True, errors="coerce", format="mixed")

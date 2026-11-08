@@ -15,18 +15,15 @@ import sys
 
 import numpy as np
 import pandas as pd
-import pyarrow.dataset as ds
 
 
 ROOT = Path(__file__).resolve().parents[2]
-COMMUNE_PATTERN = r"(?:[0-9]{5}|2[AB][0-9]{3})"
+sys.path.insert(0, str(ROOT / "src"))
+from enedis.prediction.data import communal_consumption_batches, communal_pv_batches, solar_batches
+
 C_KEYS = ["commune", "category", "sector", "naf"]
 QUANTILES = {"p01": .01, "p05": .05, "q25": .25, "mediane": .5,
              "q75": .75, "p95": .95, "p99": .99}
-
-
-def department_from_code(codes):
-    return codes.str[:2].where(~codes.str.startswith(("97", "98")), codes.str[:3])
 
 
 def prepare_measures(frame, keys, factor=1.):
@@ -35,74 +32,46 @@ def prepare_measures(frame, keys, factor=1.):
     raw = frame.pop("raw_value")
     numbers = pd.to_numeric(raw, errors="coerce").astype(float)
     valid = np.isfinite(numbers) & numbers.ge(0)
+
     frame["missing"] = raw.isna() | raw.astype("string").str.strip().eq("").fillna(False)
     frame["invalid"] = ~valid & ~frame["missing"]
+
     # Vérification après concaténation : les répétitions peuvent traverser les lots/fichiers.
     frame["duplicate"] = frame.duplicated(keys, keep=False)
     frame["usable"] = valid & ~frame["duplicate"]
     frame["value"] = numbers.where(valid) * factor
+
     return frame
 
 
 def read_consumption(path, region, start_year, end_year, chunksize):
-    columns = ["Année", "Code Commune", "Code Département", "Code Région", "Nom Région",
-               "CODE CATEGORIE CONSOMMATION", "CODE GRAND SECTEUR", "CODE SECTEUR NAF2",
-               "Conso totale (MWh)"]
-    parts, departments, names, diagnostics = [], set(), Counter(), Counter()
-    for chunk in pd.read_csv(path, usecols=columns, dtype="string", keep_default_na=False,
-                             encoding="utf-8-sig", chunksize=chunksize):
-        diagnostics["lignes_parcourues"] += len(chunk)
-        selected = chunk.loc[chunk["Code Région"].str.strip().str.zfill(2).eq(region)]
-        diagnostics["lignes_region"] += len(selected)
-        if selected.empty:
-            continue
-        names.update(selected["Nom Région"].str.strip().value_counts().to_dict())
-        deps = selected["Code Département"].str.strip().str.zfill(2)
-        departments.update(deps[deps.str.fullmatch(r"(?:[0-9]{2}|9[78][0-9]|2[AB])")])
-        codes = selected["Code Commune"].str.strip()
-        years = pd.to_numeric(selected["Année"].str.strip(), errors="coerce")
-        key_valid = (codes.str.fullmatch(COMMUNE_PATTERN) & department_from_code(codes).eq(deps)
-                     & years.between(1, 9999) & years.mod(1).eq(0))
-        diagnostics["cles_rejetees"] += int((~key_valid).sum())
-        eligible = key_valid & years.between(start_year, end_year)
-        work = pd.DataFrame({
-            "commune": codes[eligible], "year": years[eligible].astype(int),
-            "category": selected.loc[eligible, "CODE CATEGORIE CONSOMMATION"].str.strip(),
-            "sector": selected.loc[eligible, "CODE GRAND SECTEUR"].str.strip(),
-            "naf": selected.loc[eligible, "CODE SECTEUR NAF2"].str.strip(),
-            "raw_value": selected.loc[eligible, "Conso totale (MWh)"],
-        })
-        parts.append(work)
-    if not departments:
-        raise ValueError(f"Aucun département trouvé pour la région {region} dans la consommation.")
-    columns = C_KEYS + ["year", "raw_value"]
-    frame = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=columns)
+    parts = []
+
+    for frame, departments, names, diagnostics in communal_consumption_batches(
+            path, region, start_year, end_year, chunksize, categories=True):
+        parts.append(frame)
+
+    frame = pd.concat(parts, ignore_index=True)
     name = next((name for name, _ in names.most_common() if name), region)
-    return prepare_measures(frame, C_KEYS + ["year"]), departments, name, diagnostics
+    diagnostics = Counter({name: diagnostics[source] for source, name in {
+        'rows_read': 'lignes_parcourues', 'region_rows': 'lignes_region', 'invalid_key_rows': 'cles_rejetees'}.items()})
+
+    return prepare_measures(frame, C_KEYS + ['year']), departments, name, diagnostics
 
 
 def read_pv(path, departments, start_year, end_year, chunksize):
-    columns = ["date_mesure", "geocode_commune", "type_installation", "valeur"]
     parts, diagnostics = [], Counter()
-    for chunk in pd.read_csv(path, usecols=columns, dtype="string", keep_default_na=False,
-                             encoding="utf-8-sig", chunksize=chunksize):
-        diagnostics["lignes_parcourues"] += len(chunk)
-        solar = chunk.loc[chunk["type_installation"].str.strip().eq("Photovoltaïque")]
-        codes = solar["geocode_commune"].str.strip()
-        diagnostics["codes_invalides_toutes_regions"] += int((~codes.str.fullmatch(COMMUNE_PATTERN)).sum())
-        selected = solar.loc[codes.str.fullmatch(COMMUNE_PATTERN)
-                             & department_from_code(codes).isin(departments)]
-        diagnostics["lignes_region"] += len(selected)
-        dates = pd.to_datetime(selected["date_mesure"].str.strip(), errors="coerce", format="mixed")
-        diagnostics["dates_rejetees"] += int(dates.isna().sum())
-        years = dates.dt.year
-        eligible = years.between(start_year, end_year)
-        parts.append(pd.DataFrame({"commune": codes.loc[selected.index][eligible],
-                                   "year": years[eligible].astype(int), "category": "PV",
-                                   "raw_value": selected.loc[eligible, "valeur"]}))
+
+    for frame, diagnostics in communal_pv_batches(path, departments, start_year, end_year, chunksize):
+        parts.append(frame.assign(category='PV'))
+
     frame = (pd.concat(parts, ignore_index=True) if parts else
-             pd.DataFrame(columns=["commune", "year", "category", "raw_value"]))
-    return prepare_measures(frame, ["commune", "year"]), diagnostics
+             pd.DataFrame(columns=['commune', 'year', 'category', 'raw_value']))
+    diagnostics = Counter({name: diagnostics[source] for source, name in {
+        'rows_read': 'lignes_parcourues', 'invalid_codes_all_regions': 'codes_invalides_toutes_regions',
+        'region_rows': 'lignes_region', 'invalid_dates': 'dates_rejetees'}.items()})
+
+    return prepare_measures(frame, ['commune', 'year']), diagnostics
 
 
 def common_sample(frame, unit_keys, years):
@@ -142,42 +111,41 @@ def annual_statistics(frame, years, unit_keys):
 
 
 def read_production(path, region, start_year, end_year, batch_size):
-    files = sorted(Path(path).rglob("*.parquet"))
-    if not files:
-        raise ValueError(f"Aucun Parquet de production dans {path}.")
-    dataset = ds.dataset([str(file) for file in files], format="parquet", partitioning="hive")
-    selection = ((ds.field("code_region") == region)
-                 & (ds.field("filiere_de_production") == "F5 : Solaire")
-                 & (ds.field("plage_de_puissance_injection") == "P0 : Total toutes puissances"))
     parts, diagnostics = [], Counter()
-    for batch in dataset.scanner(columns=["horodate", "total_energie_injectee_wh"],
-                                 filter=selection, batch_size=batch_size).to_batches():
-        source = batch.to_pandas()
+
+    for source in solar_batches(path, ['horodate', 'total_energie_injectee_wh'], region=region, batch_size=batch_size):
         diagnostics["lignes_region_F5_P0"] += len(source)
+
         times = pd.to_datetime(source["horodate"], utc=True, errors="coerce", format="mixed")
         aligned = (times.notna() & times.dt.minute.mod(30).eq(0) & times.dt.second.eq(0)
                    & times.dt.microsecond.eq(0) & times.dt.nanosecond.eq(0))
         diagnostics["horodates_rejetees"] += int((~aligned).sum())
+
         local = times.dt.tz_convert("Europe/Paris")
         eligible = aligned.copy()
         if start_year is not None:
             eligible &= local.dt.year.ge(start_year)
         if end_year is not None:
             eligible &= local.dt.year.le(end_year)
+
         parts.append(pd.DataFrame({"instant": times[eligible],
                                    "mois": local[eligible].dt.strftime("%Y-%m"),
                                    "heure": local[eligible].dt.hour,
                                    "raw_value": source.loc[eligible, "total_energie_injectee_wh"]}))
+
     if not parts or not any(len(part) for part in parts):
         raise ValueError("Aucune observation solaire F5/P0 dans cette région et cette fenêtre.")
+
     frame = prepare_measures(pd.concat(parts, ignore_index=True), ["instant"], factor=1e-6)
     first = f"{start_year:04d}-01" if start_year is not None else frame["mois"].min()
     last = f"{end_year:04d}-12" if end_year is not None else frame["mois"].max()
     start = pd.Period(first, freq="M").start_time.tz_localize("Europe/Paris")
     end = (pd.Period(last, freq="M") + 1).start_time.tz_localize("Europe/Paris")
+
     # Le calendrier inclut les mois sans lignes et les journées de 23/25 heures.
     calendar = pd.date_range(start, end, freq="30min", inclusive="left")
     expected = pd.DataFrame({"mois": calendar.strftime("%Y-%m"), "heure": calendar.hour})
+
     return frame, expected, diagnostics
 
 

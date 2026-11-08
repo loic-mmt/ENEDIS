@@ -11,8 +11,8 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pandas as pd
-import pyarrow.dataset as ds
 
+from .data import solar_batches
 from .utils import (check_choice, check_column, check_datetime_index, check_finite, check_integer, check_numeric)
 
 ENERGY = "total_energie_injectee_wh"
@@ -70,14 +70,8 @@ def _read_manifest(directory):
 
 def read_solar_series(files, region, batch_size=100_000):
     """Arrow pushes the region/F5/P0 filter and reads just three useful columns."""
-    dataset = ds.dataset([str(path) for path in files], format="parquet", partitioning="hive")
-    selection = ((ds.field("code_region") == region)
-                 & (ds.field("filiere_de_production") == "F5 : Solaire")
-                 & (ds.field("plage_de_puissance_injection") == "P0 : Total toutes puissances"))
     columns = ["horodate", ENERGY, SITES]
-    parts = [batch.to_pandas() for batch in dataset.scanner(
-        columns=columns, filter=selection, batch_size=batch_size, use_threads=False,
-        batch_readahead=1, fragment_readahead=1).to_batches() if len(batch)]
+    parts = list(solar_batches(files, columns, region=region, batch_size=batch_size))
     if not parts:
         raise ValueError(f"Aucune production solaire F5/P0 pour la région {region}.")
 
