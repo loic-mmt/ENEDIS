@@ -1,3 +1,5 @@
+Parcours retenu pour le groupe : [installation locale de la base, sans DVC](docs/module_1/installation-locale-equipe.md).
+
 Parcours de reference : [initialisation et evolution Python](docs/module_1/parcours-python.md).
 
 # ENEDIS

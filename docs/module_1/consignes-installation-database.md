@@ -1,3 +1,5 @@
+> Le groupe utilise désormais une copie PostgreSQL locale par poste. Suivre [le guide local](installation-locale-equipe.md). Les instructions d'accès distant ci-dessous restent une option historique.
+
 **Mise a jour types :** les CSV connus sont desormais types automatiquement. Pour une base deja importee, suivre [la migration](migration-types.md) avant tout nouvel import. Cette consigne remplace les mentions de CSV tous en texte ci-dessous.
 
 # Consignes installation database — guide pour toute l'équipe

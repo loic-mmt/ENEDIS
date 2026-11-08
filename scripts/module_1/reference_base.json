@@ -1,0 +1,634 @@
+{
+  "files": {
+    "bornes_recharge/consolidation-nationale-irve-dynamique-2026-10-16T16_14_52.180053Z.csv": {
+      "sha256": "c4f564bf151ef1ff680deba8c8381d2705cec7b17a1411a490f18c0ac4b864fb",
+      "bytes": 9215604
+    },
+    "bornes_recharge/consolidation_transport_irve_statique.csv": {
+      "sha256": "ba0f806ed55da93f7c4f70c933447b9a99baed2005664c56c253f87eaebc921d",
+      "bytes": 123033817
+    },
+    "bornes_recharge/consolidation_transport_irve_statique_rapport.csv": {
+      "sha256": "cb9425085eb288701aa39796cedde19d7527243675face76c9cc2682112a97d5",
+      "bytes": 653338
+    },
+    "consommation/consommation-electrique-par-secteur-dactivite-commune.csv": {
+      "sha256": "b4dab283fd0831b99acd28b3d8bd803667ae4de08a0ea825c615a700457bfa2a",
+      "bytes": 775690563
+    },
+    "courbes_de_charge/RES2-6-9.csv": {
+      "sha256": "0ac5fc61dac7c4a75fce5cf14e15843f3459052374632d82813ca94b5aa91f98",
+      "bytes": 392164906
+    },
+    "courbes_de_charge/RES2-9-12.csv": {
+      "sha256": "6bc1c52327be5b99ed2a89daff38c789ebc3ef29d438c51154849b86044c86a3",
+      "bytes": 393615398
+    },
+    "production_regionale/_conversion.json": {
+      "sha256": "bc1b38008172eb4b6c1c9b9841ba6a592b4393f428668fccb69438dbdd726623",
+      "bytes": 704
+    },
+    "production_regionale/_schema.txt": {
+      "sha256": "87f54b7c25cbf10cd4427548f04615fde05369858303e28ac670f7dd3eee6935",
+      "bytes": 573
+    },
+    "production_regionale/metadata.json": {
+      "sha256": "45fbe76d22d7c659fdf46be9412a217e91d6fa2e8d6667081f1b05761184d51f",
+      "bytes": 13846
+    },
+    "production_regionale/year=2023/part-00001.parquet": {
+      "sha256": "2650bbedc74a875e008e0369e812f89e2638c41c9a17bbff25a912a634dfc019",
+      "bytes": 18451008
+    },
+    "production_regionale/year=2023/part-00002.parquet": {
+      "sha256": "78b46a29eba85d553118c10869ae91d69aefee16c03b3e24913361bc0b70d342",
+      "bytes": 18346395
+    },
+    "production_regionale/year=2023/part-00003.parquet": {
+      "sha256": "23d5ee23399ed1d22cea15f6ecfad6c46c1192ed2b36bb0c6df4bf89f0208ce9",
+      "bytes": 18570858
+    },
+    "production_regionale/year=2023/part-00004.parquet": {
+      "sha256": "3baaa93e5b42c993ff2c3d539d261b0e68659498e37f4ffa577bb51311b439cf",
+      "bytes": 18444297
+    },
+    "production_regionale/year=2023/part-00005.parquet": {
+      "sha256": "77ae326f42a312771951e4cd4494963a69881b509f5767a5ade2681b86bc7327",
+      "bytes": 18362714
+    },
+    "production_regionale/year=2023/part-00006.parquet": {
+      "sha256": "75cf63fb9569c5169c967494ae0516d52abeb99b1b5c7b8c9bf4b1c6ee949084",
+      "bytes": 18110887
+    },
+    "production_regionale/year=2023/part-00007.parquet": {
+      "sha256": "b44777a3c65702889577c99dd560d88477860b9cbccf349fdc9a23a7fdab0036",
+      "bytes": 18392540
+    },
+    "production_regionale/year=2023/part-00008.parquet": {
+      "sha256": "d15425805d873246710cb244a772c7f3b38ebdd12fccc922ea7e8dcf7986c3ab",
+      "bytes": 18258840
+    },
+    "production_regionale/year=2023/part-00009.parquet": {
+      "sha256": "6c480390411b921dd644e187687f6658a4e690b46803a791ab2e10c7786c4270",
+      "bytes": 18240883
+    },
+    "production_regionale/year=2023/part-00010.parquet": {
+      "sha256": "5043058ed4c89f1b05b9fa877b1b58e13094e472a61f25d0ec5bc309237b1c1e",
+      "bytes": 18673847
+    },
+    "production_regionale/year=2023/part-00011.parquet": {
+      "sha256": "809e4d32da388e9b32ce9e929a420159d053e8605af8712d9f32c2f103c0f154",
+      "bytes": 18377884
+    },
+    "production_regionale/year=2023/part-00012.parquet": {
+      "sha256": "e8c7f180accf99bd6dc3b0e508a5b4a8e6a7ba02cfadddbe7df298a450ef5deb",
+      "bytes": 8249030
+    },
+    "production_regionale/year=2024/part-00001.parquet": {
+      "sha256": "f2eb761addbc12abf02458101ace5ebfe025859cd244f0c35478ded81beb4cc7",
+      "bytes": 18489467
+    },
+    "production_regionale/year=2024/part-00002.parquet": {
+      "sha256": "9705da5ccfb3840ee968f6383f12e85ec72cc44b05d3ff034c53e9c10b31f7cf",
+      "bytes": 18497363
+    },
+    "production_regionale/year=2024/part-00003.parquet": {
+      "sha256": "595eee94f60270d0e77ee76243b51459819f5bd40fbcb7893dc371f592653635",
+      "bytes": 18615275
+    },
+    "production_regionale/year=2024/part-00004.parquet": {
+      "sha256": "fbb2537b5039464e169f568acff017781ece8b0e7fa25983d0b1ffdda9a47ff6",
+      "bytes": 18381799
+    },
+    "production_regionale/year=2024/part-00005.parquet": {
+      "sha256": "9d5ebc8891315c67a72400d18bd754e36dbce243caed963fe4b318b18df27866",
+      "bytes": 18286314
+    },
+    "production_regionale/year=2024/part-00006.parquet": {
+      "sha256": "2044fd6b507427766b3023d17cdd4dfcf3f382a63077c2a436d4647b782afb42",
+      "bytes": 18505888
+    },
+    "production_regionale/year=2024/part-00007.parquet": {
+      "sha256": "c4c6c0bb8254ac51faab0955e475959233a220f48a3f58768c681f7833c523c6",
+      "bytes": 18370376
+    },
+    "production_regionale/year=2024/part-00008.parquet": {
+      "sha256": "f990ba9cdd763831b5fce0553969b69e03453039627302afbf7a1aab9e9290f0",
+      "bytes": 18436300
+    },
+    "production_regionale/year=2024/part-00009.parquet": {
+      "sha256": "75787a42e1a51de7daeb66da780cdfa38574c2632ed0e971c903096b644bc6d1",
+      "bytes": 18543443
+    },
+    "production_regionale/year=2024/part-00010.parquet": {
+      "sha256": "62aad069bacd2e0fd729ff913ae0812adc5aa2145bb7bcbd28bd5a68d5b9a650",
+      "bytes": 18385438
+    },
+    "production_regionale/year=2024/part-00011.parquet": {
+      "sha256": "ba841e8ec576f588d0741d91ddb8855e0324a81286b36878118a000042b26e83",
+      "bytes": 18646288
+    },
+    "production_regionale/year=2024/part-00012.parquet": {
+      "sha256": "4968922d9c3ee0b18936a7e00d6e9671b68243f21ab860084353e250d5f34ce3",
+      "bytes": 18558921
+    },
+    "production_regionale/year=2024/part-00013.parquet": {
+      "sha256": "b7296ed0bd0f45f4384831d34bfd4df4f32cb91a21f0d166ac6d74d32ffca1e2",
+      "bytes": 18702075
+    },
+    "production_regionale/year=2024/part-00014.parquet": {
+      "sha256": "8a6ee1361071d28ec81f095e378e5fee47d923229478ec3d41d88eb4bad7b88c",
+      "bytes": 18565014
+    },
+    "production_regionale/year=2024/part-00015.parquet": {
+      "sha256": "186a0a48d6b1bd28c0e37d6d0c55f11ab82e4461e7f4cfa253feb96f601b1b4a",
+      "bytes": 18576198
+    },
+    "production_regionale/year=2024/part-00016.parquet": {
+      "sha256": "29bc31a360bfe2523f394a8117e850c371b7ed84ffb6625445930900aefef846",
+      "bytes": 18534251
+    },
+    "production_regionale/year=2024/part-00017.parquet": {
+      "sha256": "259dced57dd514d0e73f7fc1ea6e58d58b3b10db9e28be996d31ea85570c5bf0",
+      "bytes": 18632506
+    },
+    "production_regionale/year=2024/part-00018.parquet": {
+      "sha256": "1269f7970873b64a731e4b4465b071def6fa395d9f922330dd0e8e446d0c5d9e",
+      "bytes": 18666304
+    },
+    "production_regionale/year=2024/part-00019.parquet": {
+      "sha256": "e7e71a2baee86f9a374367f7796c9348915e2049138945b4ba31f306163229e1",
+      "bytes": 18692704
+    },
+    "production_regionale/year=2024/part-00020.parquet": {
+      "sha256": "158c620b030d5e5d60f34961d081453dfee794236fdf61c60f5fba0b6d6caafa",
+      "bytes": 18692873
+    },
+    "production_regionale/year=2024/part-00021.parquet": {
+      "sha256": "34ac8b3b0f79d50ead6dc81682efe95e72d2ba9ecb7e14bd176ebee0e4b880f3",
+      "bytes": 18454119
+    },
+    "production_regionale/year=2024/part-00022.parquet": {
+      "sha256": "49899e24d94569bf6b72006afe32d2271fff6becaf2692d3c4ee590e011966c2",
+      "bytes": 18537009
+    },
+    "production_regionale/year=2024/part-00023.parquet": {
+      "sha256": "a2e02048ce8868427710a2a066d35868f812832b4f29cc003014bbd708b1b21d",
+      "bytes": 14095060
+    },
+    "production_regionale/year=2025/part-00001.parquet": {
+      "sha256": "ab4d56386d625e979a0722b4df82c8e41ad4e1df20bf6d8dc3be14c650f50913",
+      "bytes": 18835978
+    },
+    "production_regionale/year=2025/part-00002.parquet": {
+      "sha256": "466c63f8cf232293e19992974c3798da682d107e87e1c8861ca75c2076b9ce66",
+      "bytes": 19013020
+    },
+    "production_regionale/year=2025/part-00003.parquet": {
+      "sha256": "d9a9e802ad1738e9053ac302ea460fde7873cbeb370dc43d25bc1f4bffdfbaef",
+      "bytes": 18979868
+    },
+    "production_regionale/year=2025/part-00004.parquet": {
+      "sha256": "10b67921f2b614bdcab33adb55c57444f10e1fd0d31c8e2f1aea4d25afc108d7",
+      "bytes": 18844820
+    },
+    "production_regionale/year=2025/part-00005.parquet": {
+      "sha256": "b94bf25cdd3d8567c36920d0986a61a704fd8e2690461f8e8168ea42eb90fb71",
+      "bytes": 18927358
+    },
+    "production_regionale/year=2025/part-00006.parquet": {
+      "sha256": "0f47e2191e1a882769578247310e6e5096109d1f7c76596463cd93af89b4705d",
+      "bytes": 18848543
+    },
+    "production_regionale/year=2025/part-00007.parquet": {
+      "sha256": "6e3eb1ced741f517da7dd942a1989bac79114c0126c5a159ff6ad469fd5e6b7e",
+      "bytes": 19081109
+    },
+    "production_regionale/year=2025/part-00008.parquet": {
+      "sha256": "c0f0c80abe2d98e96b915f3d9fd323232fbb928414db29ce44118173090457c3",
+      "bytes": 19144624
+    },
+    "production_regionale/year=2025/part-00009.parquet": {
+      "sha256": "942acbfd855df3bd6ac51a6ad43bdd9269a012c50c17a29039712bc62a8aad0d",
+      "bytes": 18990539
+    },
+    "production_regionale/year=2025/part-00010.parquet": {
+      "sha256": "d7e3c0bf4c20f7da2a45179beec0d38dcc2750f91377348c90ddff34795c34fe",
+      "bytes": 19031085
+    },
+    "production_regionale/year=2025/part-00011.parquet": {
+      "sha256": "7ec3da0e6e3e8786c4deda17ccbfbe555029a64af9cd710f69ea193caf999bd1",
+      "bytes": 19024744
+    },
+    "production_regionale/year=2025/part-00012.parquet": {
+      "sha256": "b43c722b13555ed5d6075231750583729a54460f950e178889063e44f7790494",
+      "bytes": 19044411
+    },
+    "production_regionale/year=2025/part-00013.parquet": {
+      "sha256": "872c5951818fb19d92dbb5b45e8300958bf48419826a620df506ce7839de9f6b",
+      "bytes": 18857738
+    },
+    "production_regionale/year=2025/part-00014.parquet": {
+      "sha256": "988ba6376ffbe51cfc60bb5b94bb5e986087d6468c1341cdf0fdfd2fcd3dd52b",
+      "bytes": 19712670
+    },
+    "production_regionale/year=2025/part-00015.parquet": {
+      "sha256": "fbb61b0be27efe9c3d545f790893fb758e198aa631d58a8939146c127da2e5ee",
+      "bytes": 20128469
+    },
+    "production_regionale/year=2025/part-00016.parquet": {
+      "sha256": "97d046caa05c4ecf7533044c2b7927c2b88e753efe3df0b7743dfbe88892df3c",
+      "bytes": 20135286
+    },
+    "production_regionale/year=2025/part-00017.parquet": {
+      "sha256": "0e29f1849d72a2b19b6d64752479614930d9777c9ed1c21459adb13e04c2f56a",
+      "bytes": 19969183
+    },
+    "production_regionale/year=2025/part-00018.parquet": {
+      "sha256": "888baaed5a8c30cf59c238a98ce3371b7dcec36a01543b4ee285b4eb11484d63",
+      "bytes": 20080677
+    },
+    "production_regionale/year=2025/part-00019.parquet": {
+      "sha256": "0b632c661286c3dce27ada804087d28a09fa03efb6f1b2916f16f080533b6fcf",
+      "bytes": 20007323
+    },
+    "production_regionale/year=2025/part-00020.parquet": {
+      "sha256": "7c8a9913024bdb152e18a97a1cb3122154a1bf039d0a587a27e24b2c0f7a3293",
+      "bytes": 19859691
+    },
+    "production_regionale/year=2025/part-00021.parquet": {
+      "sha256": "f013dc8f0b95dec8a351c714da6d9d4c32d140042aa098ee1abac9e6eabd50a9",
+      "bytes": 19726626
+    },
+    "production_regionale/year=2025/part-00022.parquet": {
+      "sha256": "36996403994b28515f4077c834e5c6ed469cbf71548a99e8aaafdba64cf03176",
+      "bytes": 19844825
+    },
+    "production_regionale/year=2025/part-00023.parquet": {
+      "sha256": "50c08670e68ccdc814f3782b2f414e1f371f48639b044348a4b6734174818254",
+      "bytes": 13963751
+    },
+    "production_regionale/year=2026/part-00001.parquet": {
+      "sha256": "fa21b683b9a19970422129736157f007a8ebfc9f286bcb1f61707c60f3135b31",
+      "bytes": 18585952
+    },
+    "production_regionale/year=2026/part-00002.parquet": {
+      "sha256": "c3e3e8eb24f84437aed6c7e567c02ed33aad4878934ff3d9fcd82d4f94a8a501",
+      "bytes": 18492626
+    },
+    "production_regionale/year=2026/part-00003.parquet": {
+      "sha256": "c456176ebfb15ee6f0efe40596f5c2acbc02bcc2ddfea97d38d7cefaedf3dd32",
+      "bytes": 18457223
+    },
+    "production_regionale/year=2026/part-00004.parquet": {
+      "sha256": "08833815d4c440a6b28c4d5d458159bd601386a439e6db80d70b2676e8f1c798",
+      "bytes": 18413991
+    },
+    "production_regionale/year=2026/part-00005.parquet": {
+      "sha256": "36acd4983bf247670918c1a46abd45e0da7c68666a378b4c26cb350623849fc1",
+      "bytes": 18489441
+    },
+    "production_regionale/year=2026/part-00006.parquet": {
+      "sha256": "7ceb2e705a4f7a9c900100fdc6de334b043f4f4d7bc90861bab8aa1935f17fd2",
+      "bytes": 18707603
+    },
+    "production_regionale/year=2026/part-00007.parquet": {
+      "sha256": "bcf9ca1050eb95a5444522359a5030c763eb4538e059b04654f2a2169bcdc2e7",
+      "bytes": 18603226
+    },
+    "production_regionale/year=2026/part-00008.parquet": {
+      "sha256": "a93cc7e08da2ef93976f16dea702cd12d55ddcede5087d167a5fb46bd75354f9",
+      "bytes": 18559654
+    },
+    "production_regionale/year=2026/part-00009.parquet": {
+      "sha256": "acf3d58292fa1473cce689444381e4286deba3041df6322f255ddfa857eeb98a",
+      "bytes": 18498933
+    },
+    "production_regionale/year=2026/part-00010.parquet": {
+      "sha256": "54c51def93b7997b6d9ec2654aa20ab91980b0b99fac0bd7b498ea010e55c68d",
+      "bytes": 18413316
+    },
+    "production_regionale/year=2026/part-00011.parquet": {
+      "sha256": "854f2cba24d506a70193aa4e5b611e8922ca703a5cb59fe84b217cf9d145f0f1",
+      "bytes": 18348315
+    },
+    "production_regionale/year=2026/part-00012.parquet": {
+      "sha256": "675ea6ac991ab1cc2805df85a543bba5ee15dc9b5ea66c83136191449097458b",
+      "bytes": 4723106
+    },
+    "puissance_photovoltaique/description-des-champs.csv": {
+      "sha256": "9e36a9ff55609d8ca87791962c71aef9af32741d2682f03bca5fe6604cdcab8c",
+      "bytes": 1419
+    },
+    "puissance_photovoltaique/puissance-solaire-installee-commune.csv": {
+      "sha256": "a05a24b2623b0ad24050a6920463b95c4992a6fda042ce267720d2674f8b8795",
+      "bytes": 25038097
+    },
+    "puissance_photovoltaique/puissance-solaire-installee-departement.csv": {
+      "sha256": "ab953abe3de1d7d8a71aabe6c651b0410050f95779de9c7e7aae78304aca385b",
+      "bytes": 184593
+    },
+    "puissance_photovoltaique/puissance-solaire-installee-epci.csv": {
+      "sha256": "9cfebc0acd9d1bad43ec131256461304256eb164048819fdec51c132e8d92a13",
+      "bytes": 2622060
+    },
+    "puissance_photovoltaique/puissance-solaire-installee-region.csv": {
+      "sha256": "2c27d29163ba000387913c6fe98124a31235f5e43f2b07c0b89628247b31d97d",
+      "bytes": 62220
+    },
+    "reseau/donnees-relatives-aux-lignes-et-aux-postes.csv": {
+      "sha256": "ebdbb128c1867f847a250e2aadda2e851f2f7ffeb3c48ae22b6860a03faa28a1",
+      "bytes": 296482
+    },
+    "reseau/poste-electrique.csv": {
+      "sha256": "e48438a0c524743651e1ce75c1a0e91be5631be207c64c07d8c6e8d56ba161ba",
+      "bytes": 222836052
+    }
+  },
+  "schema": {
+    "charge_res2_6_9": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "id": "text",
+      "horodate": "timestamp with time zone",
+      "valeur": "numeric"
+    },
+    "charge_res2_9_12": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "id": "text",
+      "horodate": "timestamp with time zone",
+      "valeur": "numeric"
+    },
+    "consommation_annuelle": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "annee": "integer",
+      "code_commune": "text",
+      "nom_commune": "text",
+      "code_epci": "text",
+      "nom_epci": "text",
+      "type_epci": "text",
+      "code_departement": "text",
+      "nom_departement": "text",
+      "code_region": "text",
+      "nom_region": "text",
+      "code_categorie_consommation": "text",
+      "code_grand_secteur": "text",
+      "code_secteur_naf2": "text",
+      "nb_sites": "bigint",
+      "conso_totale_mwh": "numeric",
+      "conso_moyenne_mwh": "numeric",
+      "nombre_de_mailles_secretisees": "numeric",
+      "part_thermosensible": "numeric",
+      "conso_totale_usages_thermosensibles_mwh": "numeric",
+      "conso_totale_usages_non_thermosensibles_mwh": "numeric",
+      "thermosensibilite_totale_kwh_dju": "numeric",
+      "conso_totale_corrigee_de_l_alea_climatique_usages__88db8cd06861": "numeric",
+      "conso_moyenne_usages_thermosensibles_mwh": "numeric",
+      "conso_moyenne_usages_non_thermosensibles_mwh": "numeric",
+      "thermosensibilite_moyenne_kwh_dju": "numeric",
+      "conso_moyenne_corrigee_de_l_alea_climatique_usages_b5dfccaa86ba": "numeric",
+      "dju_a_tr": "numeric",
+      "dju_a_tn": "numeric",
+      "nombre_d_habitants": "numeric",
+      "taux_de_logements_collectifs": "numeric",
+      "taux_de_residences_principales": "numeric",
+      "superficie_des_logements_30_m2": "numeric",
+      "superficie_des_logements_30_a_40_m2": "numeric",
+      "superficie_des_logements_40_a_60_m2": "numeric",
+      "superficie_des_logements_60_a_80_m2": "numeric",
+      "superficie_des_logements_80_a_100_m2": "numeric",
+      "superficie_des_logements_100_m2": "numeric",
+      "residences_principales_avant_1919": "numeric",
+      "residences_principales_de_1919_a_1945": "numeric",
+      "residences_principales_de_1946_a_1970": "numeric",
+      "residences_principales_de_1971_a_1990": "numeric",
+      "residences_principales_de_1991_a_2005": "numeric",
+      "residences_principales_apres_2006": "numeric",
+      "residences_principales_les_plus_recentes": "numeric",
+      "taux_de_chauffage_electrique": "numeric",
+      "code_pnr": "text",
+      "nom_pnr": "text",
+      "code_ept": "text",
+      "nom_ept": "text"
+    },
+    "dictionnaire_solaire": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "colonne": "text",
+      "description": "text"
+    },
+    "documents_source": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "document": "jsonb"
+    },
+    "documents_texte": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "contenu": "text"
+    },
+    "irve_dynamique": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "id_pdc_itinerance": "text",
+      "etat_pdc": "text",
+      "occupation_pdc": "text",
+      "horodatage": "timestamp with time zone",
+      "etat_prise_type_2": "text",
+      "etat_prise_type_combo_ccs": "text",
+      "etat_prise_type_chademo": "text",
+      "etat_prise_type_ef": "text"
+    },
+    "irve_rapport": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "dataset_id": "text",
+      "resource_id": "text",
+      "resource_status": "text",
+      "consolidation_status": "text",
+      "error_type": "text",
+      "estimated_pdc_count": "bigint",
+      "file_extension": "text",
+      "url": "text",
+      "dataset_title": "text",
+      "datagouv_organization_or_owner": "text",
+      "datagouv_last_modified": "text",
+      "error_message": "text"
+    },
+    "irve_statique": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "nom_amenageur": "text",
+      "siren_amenageur": "text",
+      "contact_amenageur": "text",
+      "nom_operateur": "text",
+      "contact_operateur": "text",
+      "telephone_operateur": "text",
+      "nom_enseigne": "text",
+      "id_station_itinerance": "text",
+      "id_station_local": "text",
+      "nom_station": "text",
+      "implantation_station": "text",
+      "adresse_station": "text",
+      "code_insee_commune": "text",
+      "coordonneesxy": "text",
+      "nbre_pdc": "bigint",
+      "id_pdc_itinerance": "text",
+      "id_pdc_local": "text",
+      "puissance_nominale": "numeric",
+      "prise_type_ef": "text",
+      "prise_type_2": "text",
+      "prise_type_combo_ccs": "text",
+      "prise_type_chademo": "text",
+      "prise_type_autre": "text",
+      "gratuit": "text",
+      "paiement_acte": "text",
+      "paiement_cb": "text",
+      "paiement_autre": "text",
+      "tarification": "text",
+      "condition_acces": "text",
+      "reservation": "text",
+      "horaires": "text",
+      "accessibilite_pmr": "text",
+      "restriction_gabarit": "text",
+      "station_deux_roues": "text",
+      "raccordement": "text",
+      "num_pdl": "text",
+      "date_mise_en_service": "text",
+      "observations": "text",
+      "date_maj": "text",
+      "cable_t2_attache": "text",
+      "consolidated_longitude": "numeric",
+      "consolidated_latitude": "numeric",
+      "consolidated_is_lon_lat_correct": "text",
+      "datagouv_dataset_id": "text",
+      "datagouv_resource_id": "text",
+      "dataset_title": "text",
+      "datagouv_organization_or_owner": "text",
+      "datagouv_last_modified": "text",
+      "deduplication_status": "text"
+    },
+    "postes_electriques": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "geometry": "text",
+      "x": "numeric",
+      "y": "numeric",
+      "code_iris": "text",
+      "nom_iris": "text",
+      "code_commune": "text",
+      "nom_commune": "text",
+      "code_epci": "text",
+      "nom_epci": "text",
+      "code_departement": "text",
+      "nom_departement": "text",
+      "code_region": "text",
+      "nom_region": "text"
+    },
+    "production_regionale": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "horodate": "timestamp with time zone",
+      "region": "text",
+      "code_region": "text",
+      "plage_de_puissance_injection": "text",
+      "filiere_de_production": "text",
+      "nb_points_injection": "bigint",
+      "total_energie_injectee_wh": "double precision",
+      "courbe_moyenne_ndeg1_wh": "double precision",
+      "indice_representativite_courbe_ndeg1": "text",
+      "courbe_moyenne_ndeg2_wh": "double precision",
+      "indice_representativite_courbe_ndeg2": "text",
+      "courbe_moyenne_ndeg1_ndeg2_wh": "double precision",
+      "indice_representativite_courbe_ndeg1_ndeg2": "text",
+      "jour_max_du_mois_0_1": "text",
+      "semaine_max_du_mois_0_1": "text",
+      "id": "text",
+      "i": "bigint",
+      "rand": "bigint",
+      "horodate_source": "text",
+      "score": "double precision",
+      "year": "bigint"
+    },
+    "solaire_commune": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "date_mesure": "date",
+      "geocode_commune": "text",
+      "libelle_commune": "text",
+      "type_installation": "text",
+      "vecteur": "text",
+      "valeur": "numeric"
+    },
+    "solaire_departement": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "date_mesure": "date",
+      "geocode_departement": "text",
+      "libelle_departement": "text",
+      "type_installation": "text",
+      "vecteur": "text",
+      "valeur": "numeric"
+    },
+    "solaire_epci": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "date_mesure": "date",
+      "geocode_epci": "text",
+      "libelle_epci": "text",
+      "type_installation": "text",
+      "vecteur": "text",
+      "valeur": "numeric"
+    },
+    "solaire_region": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "date_mesure": "date",
+      "geocode_region": "text",
+      "libelle_region": "text",
+      "type_installation": "text",
+      "vecteur": "text",
+      "valeur": "numeric"
+    },
+    "statistiques_reseau": {
+      "_source_file": "text",
+      "_imported_at": "timestamp with time zone",
+      "maille_geographique": "text",
+      "departement_region_enedis": "text",
+      "code_departement": "text",
+      "code_region": "text",
+      "annee": "integer",
+      "hta_souterrain_km": "numeric",
+      "hta_aerien_nu_km": "numeric",
+      "hta_aerien_tors_km": "numeric",
+      "hta_total_km": "numeric",
+      "nb_postes_hta_bt": "bigint",
+      "bt_souterrain": "numeric",
+      "bt_aerien_torsade": "numeric",
+      "bt_aerien_nu": "numeric",
+      "bt_total_km": "numeric",
+      "pourcentage_ouvrages_faible_taux_d_incidents": "numeric",
+      "total_km": "numeric"
+    }
+  },
+  "counts": {
+    "charge_res2_6_9": 8736000,
+    "charge_res2_9_12": 8736000,
+    "consommation_annuelle": 3763258,
+    "dictionnaire_solaire": 12,
+    "documents_source": 2,
+    "documents_texte": 1,
+    "irve_dynamique": 125339,
+    "irve_rapport": 1871,
+    "irve_statique": 171810,
+    "postes_electriques": 976678,
+    "production_regionale": 34089984,
+    "solaire_commune": 384715,
+    "solaire_departement": 2969,
+    "solaire_epci": 24904,
+    "solaire_region": 926,
+    "statistiques_reseau": 1605
+  }
+}

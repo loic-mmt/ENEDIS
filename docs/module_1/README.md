@@ -1,3 +1,5 @@
+Parcours retenu pour le groupe : [installation locale de la base, sans DVC](installation-locale-equipe.md).
+
 # Module 1 — Données et base PostgreSQL
 
 J'ai regroupé dans ce module la préparation des sources, leur import et l'accès
