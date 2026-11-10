@@ -39,7 +39,7 @@ les choix et droits d'administration propres au poste.
 
 Prévoir au moins 40 Go libres comme marge de départ, davantage si les sources,
 les fichiers temporaires et les résultats sont sur le même disque. La base de
-référence occupait environ 17 Go après import ; la taille locale peut varier.
+référence optimisée occupe environ 11,76 Gio ; la taille locale peut varier.
 
 ## 2. Récupérer la bonne version du projet
 
@@ -112,11 +112,12 @@ La base s'appelle toujours enedis et le schéma source donnees.
 Le script :
 1. vérifie les empreintes des sources ;
 2. vérifie la version du serveur et crée enedis si elle est absente ;
-3. prépare donnees et database_meta ;
+3. prépare donnees et database_meta, puis crée les trois grandes tables directement
+   avec une provenance compacte, avant de charger leurs lignes ;
 4. importe les fichiers avec les types de definitions.py ;
 5. crée les index du catalogue ;
 6. compare colonnes/types et comptages à la référence ;
-7. vérifie les NULL et zéros de consommation.
+7. vérifie les NULL et zéros de consommation, la provenance optimisée et affiche la taille finale.
 
 Les codes restent en texte ; mesures en numeric, années en integer, effectifs
 en bigint selon le dictionnaire. Les types Parquet sont conservés.
@@ -269,3 +270,20 @@ des migrations explicites.
 La [migration des types](migration-types.md) concerne uniquement les bases
 créées avant le typage automatique. Le [dictionnaire](dictionnaire-base.md)
 décrit les tables et colonnes de référence.
+
+
+## Optimisation intégrée à la nouvelle installation
+
+La nouvelle installation utilise directement `_provenance_id` (`bigint`, obligatoire,
+indexé, avec clé étrangère) pour `production_regionale`, `charge_res2_6_9` et
+`charge_res2_9_12`, comme la base de référence optimisée. Les fichiers et dates
+sont stockés dans `database_meta.provenance`. Les lectures Python restituent
+`_source_file` et `_imported_at` par jointure.
+
+Aucune commande d’optimisation ni VACUUM FULL supplémentaire n’est nécessaire
+sur une nouvelle installation. Les autres tables conservent leur format de référence.
+Si une copie existe déjà avec ces grandes tables alimentées sans optimisation,
+l’installateur s’arrête sans les convertir : suivre le
+[guide avec sauvegarde](optimisation-provenance.md), puis reprendre l’installation.
+Les chemins et dates d’import sont locaux ; les identifiants de provenance peuvent
+varier entre postes, contrairement aux types et aux valeurs sources vérifiés.

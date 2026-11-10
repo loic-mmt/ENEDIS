@@ -22,3 +22,8 @@ Les vues métier, le stockage des résultats et le versionnement des expérience
 restent à compléter.
 
 - [Audit fichiers/base et espace disque](audit-imports.md) : contrôles de provenance, volumes et index.
+
+
+## Optimisation facultative du stockage
+
+Le [guide d’optimisation de la provenance](optimisation-provenance.md) décrit la sauvegarde, la migration et la mesure de taille. Après optimisation, les tables concernées utilisent physiquement `_provenance_id` (`bigint`) vers `database_meta.provenance`. L’interface Python restitue les colonnes de provenance historiques.

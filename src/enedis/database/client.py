@@ -10,13 +10,14 @@ import unicodedata
 import psycopg
 from psycopg import sql
 from psycopg.types.json import Jsonb
+from .provenance import is_compact, provenance_id, read_relation
 
 # Types acceptés dans les définitions fournies par les utilisateurs.
 TYPES = {
     "text", "integer", "bigint", "numeric", "double precision", "boolean",
     "date", "timestamp", "timestamptz", "jsonb", "bytea",
 }
-RESERVED = {"_source_file", "_imported_at"}
+RESERVED = {"_source_file", "_imported_at", "_provenance_id"}
 
 
 def identifier(name):
@@ -131,9 +132,10 @@ class Database:
                 self.connection.execute(sql.SQL("ALTER TABLE {} ADD COLUMN {} {}").format(
                     qualified, sql.Identifier(column), sql.SQL(kind)))
             # Index utile lors du remplacement transactionnel d'un fichier.
-            index_name = sql_name(name + "_source_file_idx")
-            self.connection.execute(sql.SQL("CREATE INDEX IF NOT EXISTS {} ON {} (_source_file)").format(
-                sql.Identifier(index_name), qualified))
+            provenance_column = "_provenance_id" if "_provenance_id" in existing else "_source_file"
+            index_name = sql_name(name + provenance_column + "_idx")
+            self.connection.execute(sql.SQL("CREATE INDEX IF NOT EXISTS {} ON {} ({})").format(
+                sql.Identifier(index_name), qualified, sql.Identifier(provenance_column)))
 
     add_columns = create_table
 
@@ -169,7 +171,7 @@ class Database:
             sql.Identifier(identifier(c)) for c in columns)
         if columns is not None and not columns:
             raise ValueError("La liste de colonnes ne doit pas être vide.")
-        query = sql.SQL("SELECT {} FROM {}").format(selection, sql.Identifier(self.schema, name))
+        query = sql.SQL("SELECT {} FROM {}").format(selection, read_relation(self.connection, self.schema, name))
         parameters = []
         clauses = []
         for column, value in (filters or {}).items():
@@ -274,17 +276,25 @@ class Database:
                 "WHERE schema_name=%s AND table_name=%s AND source_file=%s", key).fetchone()
             if old and old[0] == digest and old[1] == mapping and not force:
                 return {"table": table, "file": str(path), "status": "deja_importe", "rows": old[2]}
-            self.connection.execute(sql.SQL("DELETE FROM {} WHERE _source_file=%s").format(
-                sql.Identifier(self.schema, table)), (str(path),))
+            compact = is_compact(self.connection, self.schema, table)
+            if compact:
+                self.connection.execute(sql.SQL("DELETE FROM {} WHERE _provenance_id IN "
+                    "(SELECT id FROM database_meta.provenance WHERE schema_name=%s AND table_name=%s AND source_file=%s)").format(
+                    sql.Identifier(self.schema,table)),key)
+            else:
+                self.connection.execute(sql.SQL("DELETE FROM {} WHERE _source_file=%s").format(
+                    sql.Identifier(self.schema, table)), (str(path),))
             timestamp = datetime.now(timezone.utc)
+            provenance = (provenance_id(self.connection,self.schema,table,str(path),timestamp),) if compact else (str(path),timestamp)
+            provenance_columns = ["_provenance_id"] if compact else ["_source_file","_imported_at"]
             query = sql.SQL("COPY {} ({}) FROM STDIN").format(
                 sql.Identifier(self.schema, table), sql.SQL(", ").join(
-                    sql.Identifier(c) for c in [*columns, "_source_file", "_imported_at"]))
+                    sql.Identifier(c) for c in [*columns, *provenance_columns]))
             count = 0
             with self.connection.cursor() as cursor:
                 with cursor.copy(query) as copy:
                     for row in rows:
-                        copy.write_row((*row, str(path), timestamp))
+                        copy.write_row((*row, *provenance))
                         count += 1
             after = path.stat()
             if (before.st_mtime_ns, before.st_size) != (after.st_mtime_ns, after.st_size):

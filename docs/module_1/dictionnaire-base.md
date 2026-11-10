@@ -509,3 +509,8 @@ Vérifier les index avec :
 
     SELECT schemaname, tablename, indexname, indexdef FROM pg_indexes
     WHERE schemaname IN ('donnees', 'database_meta');
+
+
+## Optimisation facultative du stockage
+
+Le [guide d’optimisation de la provenance](optimisation-provenance.md) décrit la sauvegarde, la migration et la mesure de taille. Après optimisation, les tables concernées utilisent physiquement `_provenance_id` (`bigint`) vers `database_meta.provenance`. L’interface Python restitue les colonnes de provenance historiques.

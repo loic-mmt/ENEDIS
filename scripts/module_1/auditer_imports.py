@@ -10,6 +10,7 @@ import psycopg
 from psycopg import sql
 from enedis.database.catalogue import CSV_TABLES
 from enedis.database.client import sql_name
+from enedis.database.provenance import read_relation
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -92,10 +93,10 @@ def main():
             "SELECT tablename FROM pg_tables WHERE schemaname='donnees'")]
         actual={}
         for table in tables:
-            has_source=conn.execute("SELECT 1 FROM information_schema.columns WHERE table_schema='donnees' AND table_name=%s AND column_name='_source_file'",(table,)).fetchone()
+            has_source=conn.execute("SELECT 1 FROM information_schema.columns WHERE table_schema='donnees' AND table_name=%s AND column_name IN ('_source_file','_provenance_id')",(table,)).fetchone()
             if not has_source: continue
             print(f"Comptage en base : {table}",flush=True)
-            for name,count in conn.execute(sql.SQL("SELECT _source_file,count(*) FROM {} GROUP BY _source_file").format(sql.Identifier("donnees",table))):
+            for name,count in conn.execute(sql.SQL("SELECT _source_file,count(*) FROM {} GROUP BY _source_file").format(read_relation(conn,"donnees",table))):
                 actual[table,name]=count
         report=[]
         for key in sorted(set(sources)|set(meta)|set(actual),key=lambda x:(x[0],x[1] or "")):

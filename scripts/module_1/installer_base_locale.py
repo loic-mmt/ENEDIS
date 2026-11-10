@@ -10,6 +10,9 @@ from psycopg import sql
 from psycopg.conninfo import make_conninfo
 from enedis.database import Database, create_database, import_existing_data, create_source_indexes
 
+from enedis.database.optimization import prepare_compact_sources, COMPACT_SOURCE_TABLES
+from enedis.database.provenance import is_compact
+
 ROOT = Path(__file__).resolve().parents[2]
 REFERENCE = Path(__file__).with_name("reference_base.json")
 
@@ -38,6 +41,14 @@ def verify(db, ref):
         "SELECT table_name,column_name,data_type FROM information_schema.columns "
         "WHERE table_schema='donnees'"):
         current.setdefault(table,{})[column] = kind
+    for table in COMPACT_SOURCE_TABLES:
+        if not is_compact(db.connection, "donnees", table):
+            raise ValueError(f"{table}: provenance non optimisee ; consulter optimisation-provenance.md")
+    for columns in current.values():
+        if columns.get("_provenance_id") == "bigint":
+            del columns["_provenance_id"]
+            columns["_source_file"] = "text"
+            columns["_imported_at"] = "timestamp with time zone"
     errors = []
     for table, expected in ref["schema"].items():
         if current.get(table) != expected:
@@ -94,10 +105,14 @@ def main():
             if set(known)-allowed:
                 raise ValueError("Cette base contient des imports depuis un autre chemin. "
                                  "Utiliser --verify-only ou examiner la base avant de continuer.")
+            prepare_compact_sources(db, ref["schema"])
+            print("Tables preparees avec provenance optimisee avant import.", flush=True)
             for result in import_existing_data(db,root):
                 print(result,flush=True)
             create_source_indexes(db)
         verify(db,ref)
+        size = db.connection.execute("SELECT pg_size_pretty(pg_database_size(current_database()))").fetchone()[0]
+        print(f"Taille finale de la base : {size}", flush=True)
 
 if __name__ == "__main__":
     try:
