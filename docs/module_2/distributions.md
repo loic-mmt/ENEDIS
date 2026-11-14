@@ -3,9 +3,9 @@
 Une commande par cible, depuis la racine du dépôt :
 
 ```bash
-.venv/bin/python scripts/analyse_distributions.py pv --region 53
-.venv/bin/python scripts/analyse_distributions.py consommation --region 53
-.venv/bin/python scripts/analyse_distributions.py production --region 53
+.venv/bin/python scripts/module_2/analyse_distributions.py pv --region 53
+.venv/bin/python scripts/module_2/analyse_distributions.py consommation --region 53
+.venv/bin/python scripts/module_2/analyse_distributions.py production --region 53
 ```
 
 `53` est la région par défaut. Dépendances : `requirements.txt`, dont `matplotlib` pour les graphiques.
@@ -23,10 +23,10 @@ Options communes :
 
 ```bash
 # Période plus courte, histogrammes à 30 classes
-.venv/bin/python scripts/analyse_distributions.py pv --region 53 --start-year 2020 --end-year 2025 --bins 30
+.venv/bin/python scripts/module_2/analyse_distributions.py pv --region 53 --start-year 2020 --end-year 2025 --bins 30
 
 # Statistiques terminal et CSV, sans graphiques
-.venv/bin/python scripts/analyse_distributions.py production --region 53 --no-plots
+.venv/bin/python scripts/module_2/analyse_distributions.py production --region 53 --no-plots
 ```
 
 `--data-dir` désigne la racine des sources, `--output-dir` la racine des rapports.

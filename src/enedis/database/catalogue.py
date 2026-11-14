@@ -22,7 +22,7 @@ CSV_TABLES = {
 def import_existing_data(db, raw_directory, force=False, csv_types=None):
     """Importer tous les CSV, Parquet et documents JSON/TXT sous raw_directory.
 
-    Les CSV restent en texte par défaut pour conserver toutes les valeurs.
+    Les CSV connus utilisent definitions.CSV_TYPES ; les autres champs restent en texte.
     csv_types peut être {nom_table: {nom_colonne_sql: type_sql}}.
     Chaque fichier est une transaction ; un échec n'annule pas les fichiers
     précédents. Relancer après correction reprend sans recharger les inchangés.
@@ -64,3 +64,37 @@ def import_existing_data(db, raw_directory, force=False, csv_types=None):
             raise RuntimeError(f"Import interrompu sur {relative} ; ce fichier est annulé. "
                                "Les fichiers validés précédemment restent disponibles.") from error
         yield result
+
+
+# Index de consultation des sources ; aucune unicite metier non validee.
+SOURCE_INDEXES = {
+    "consommation_annuelle": [("code_commune", "annee")],
+    "solaire_commune": [("geocode_commune", "date_mesure")],
+    "solaire_epci": [("geocode_epci", "date_mesure")],
+    "solaire_departement": [("geocode_departement", "date_mesure")],
+    "solaire_region": [("geocode_region", "date_mesure")],
+    "production_regionale": [("code_region", "horodate")],
+    "charge_res2_6_9": [("id", "horodate")],
+    "charge_res2_9_12": [("id", "horodate")],
+    "irve_dynamique": [("id_pdc_itinerance", "horodatage")],
+    "irve_statique": [("id_pdc_itinerance",)],
+    "postes_electriques": [("code_commune",)],
+}
+
+
+def create_source_indexes(db):
+    """Indexer les tables presentes apres import, sans charger leurs donnees."""
+    from psycopg import sql
+    from .client import identifier
+    with db.connection.transaction():
+        for table, indexes in SOURCE_INDEXES.items():
+            present = {r[0] for r in db.connection.execute(
+                "SELECT column_name FROM information_schema.columns "
+                "WHERE table_schema=%s AND table_name=%s", (db.schema, table))}
+            for fields in indexes:
+                if not set(fields).issubset(present):
+                    continue
+                name = sql_name(table + "_" + "_".join(fields) + "_idx")
+                db.connection.execute(sql.SQL("CREATE INDEX IF NOT EXISTS {} ON {} ({})").format(
+                    sql.Identifier(identifier(name)), sql.Identifier(db.schema, table),
+                    sql.SQL(", ").join(sql.Identifier(c) for c in fields)))

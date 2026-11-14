@@ -1,11 +1,17 @@
 # ENEDIS
 
-Emplacements attendus des données locales : [arbo.txt](arbo.txt).
+Emplacements des données locales : [arbo.txt](arbo.txt).
 
-Plans de projet : [module 1 — données et base](docs/module_1/plan-module-1.md), [module 2 — prédiction](docs/module_2/plan-module-2.md).
+## Base locale et utilisation Python
 
-Description des données et traitements : [dossier du module 1](docs/module_1/README.md).
+- [Installation locale pour le groupe](docs/module_1/installation-locale-equipe.md) : prérequis macOS/Windows, création de la base, contrôles et fonctions Python.
+- [Dictionnaire de la base](docs/module_1/dictionnaire-base.md) : tables, colonnes et types.
+- [Documentation du module 1](docs/module_1/README.md) : données et décisions.
 
-Base PostgreSQL/PostGIS : [installation](docs/module_1/installation-base.md) et [schéma des tables](docs/module_1/schema-base.md).
+Chaque membre utilise une copie PostgreSQL locale nommée enedis.
+Le package enedis.database gère les imports et les évolutions de tables.
 
-Interface Python partagée : [enedis.database](docs/module_1/package-database.md) pour importer les CSV/Parquet, créer ou faire évoluer les tables et lire les données depuis les modules de prédiction/scénarios.
+## Plans de projet
+
+- [Module 1 — données et base](docs/module_1/plan-module-1.md).
+- [Module 2 — prédiction](docs/module_2/plan-module-2.md).

@@ -11,104 +11,57 @@ from collections import Counter
 from pathlib import Path
 import sys
 
-import numpy as np
 import pandas as pd
 
 
-ROOT = Path(__file__).resolve().parents[1]
-COMMUNE_PATTERN = r"(?:[0-9]{5}|2[AB][0-9]{3})"
-DEPARTMENT_PATTERN = r"(?:[0-9]{2}|9[78][0-9]|2[AB])"
-
-
-def department_from_code(codes):
-    """Extraire le département sans convertir les codes communaux en nombres."""
-    overseas = codes.str.startswith(("97", "98"))
-    return codes.str[:2].where(~overseas, codes.str[:3])
-
-
-def measure_flags(values):
-    numbers = pd.to_numeric(values, errors="coerce").to_numpy(dtype=float, na_value=np.nan)
-    valid = np.isfinite(numbers) & (numbers >= 0)
-    return pd.Series(valid, index=values.index), pd.Series(valid & (numbers == 0), index=values.index)
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "src"))
+from enedis.prediction.data import communal_consumption_batches, communal_pv_batches, valid_measure
 
 
 def aggregate_parts(parts, columns):
     # Une même clé peut apparaître dans plusieurs lots : agréger après la lecture.
     if parts:
         return pd.concat(parts).groupby(level=["commune", "year"], sort=True).sum()
+
     index = pd.MultiIndex.from_arrays([[], []], names=["commune", "year"])
     return pd.DataFrame(index=index, columns=columns, dtype="int64")
 
 
 def read_consumption(path, region, start_year, end_year, chunksize):
-    columns = ["Année", "Code Commune", "Code Département", "Code Région",
-               "Nom Région", "Conso totale (MWh)"]
-    parts, departments, names, diagnostics = [], set(), Counter(), Counter()
-    for chunk in pd.read_csv(path, usecols=columns, dtype="string", keep_default_na=False,
-                             encoding="utf-8-sig", chunksize=chunksize):
-        diagnostics["rows_read"] += len(chunk)
-        selected = chunk.loc[chunk["Code Région"].str.strip().str.zfill(2).eq(region)]
-        diagnostics["region_rows"] += len(selected)
-        if selected.empty:
-            continue
-        names.update(selected["Nom Région"].str.strip().value_counts().to_dict())
-        codes = selected["Code Commune"].str.strip()
-        deps = selected["Code Département"].str.strip().str.zfill(2)
-        dep_valid = deps.str.fullmatch(DEPARTMENT_PATTERN)
-        departments.update(deps[dep_valid])
-        code_valid = codes.str.fullmatch(COMMUNE_PATTERN)
-        matching_dep = department_from_code(codes).eq(deps)
-        key_valid = code_valid & dep_valid & matching_dep
-        years = pd.to_numeric(selected["Année"].str.strip(), errors="coerce")
-        year_valid = years.between(1, 9999) & years.mod(1).eq(0)
-        diagnostics["invalid_key_rows"] += int((~key_valid | ~year_valid).sum())
-        diagnostics["outside_window"] += int((year_valid & ~years.between(start_year, end_year)).sum())
-        eligible = key_valid & year_valid & years.between(start_year, end_year)
-        valid, _ = measure_flags(selected["Conso totale (MWh)"])
-        work = pd.DataFrame({"commune": codes[eligible], "year": years[eligible].astype(int),
-                             "rows": 1, "known": valid[eligible].astype(int)})
+    parts = []
+
+    for frame, departments, names, diagnostics in communal_consumption_batches(
+            path, region, start_year, end_year, chunksize):
+        work = frame[['commune', 'year']].assign(rows=1, known=valid_measure(frame['raw_value']).astype(int))
         if not work.empty:
-            parts.append(work.groupby(["commune", "year"])[["rows", "known"]].sum())
-    if not departments:
-        raise ValueError(f"Aucun département trouvé pour la région {region} dans la consommation.")
+            parts.append(work.groupby(['commune', 'year'])[['rows', 'known']].sum())
+
     name = next((name for name, _ in names.most_common() if name), region)
-    return aggregate_parts(parts, ["rows", "known"]), departments, name, diagnostics
+    return aggregate_parts(parts, ['rows', 'known']), departments, name, diagnostics
 
 
 def read_pv(path, departments, start_year, end_year, chunksize):
-    columns = ["date_mesure", "geocode_commune", "type_installation", "valeur"]
     parts, diagnostics = [], Counter()
-    for chunk in pd.read_csv(path, usecols=columns, dtype="string", keep_default_na=False,
-                             encoding="utf-8-sig", chunksize=chunksize):
-        diagnostics["rows_read"] += len(chunk)
-        solar = chunk.loc[chunk["type_installation"].str.strip().eq("Photovoltaïque")]
-        codes = solar["geocode_commune"].str.strip()
-        code_valid = codes.str.fullmatch(COMMUNE_PATTERN)
-        diagnostics["invalid_codes_all_regions"] += int((~code_valid).sum())
-        eligible_region = code_valid & department_from_code(codes).isin(departments)
-        selected = solar.loc[eligible_region]
-        diagnostics["region_rows"] += len(selected)
-        if selected.empty:
-            continue
-        dates = pd.to_datetime(selected["date_mesure"].str.strip(), errors="coerce", format="mixed")
-        years = dates.dt.year
-        diagnostics["invalid_dates"] += int(dates.isna().sum())
-        diagnostics["outside_window"] += int((dates.notna() & ~years.between(start_year, end_year)).sum())
-        eligible = years.between(start_year, end_year)
-        valid, zeros = measure_flags(selected["valeur"])
-        work = pd.DataFrame({"commune": codes.loc[selected.index][eligible],
-                             "year": years[eligible].astype(int), "rows": 1,
-                             "known": valid[eligible].astype(int), "zeros": zeros[eligible].astype(int)})
+
+    for frame, diagnostics in communal_pv_batches(path, departments, start_year, end_year, chunksize):
+        valid = valid_measure(frame['raw_value'])
+        zeros = valid & pd.to_numeric(frame['raw_value'], errors='coerce').eq(0)
+
+        work = frame[['commune', 'year']].assign(rows=1, known=valid.astype(int), zeros=zeros.astype(int))
         if not work.empty:
-            parts.append(work.groupby(["commune", "year"])[["rows", "known", "zeros"]].sum())
-    return aggregate_parts(parts, ["rows", "known", "zeros"]), diagnostics
+            parts.append(work.groupby(['commune', 'year'])[['rows', 'known', 'zeros']].sum())
+
+    return aggregate_parts(parts, ['rows', 'known', 'zeros']), diagnostics
 
 
 def years_per_commune(frame, mask=None):
     selected = frame if mask is None else frame.loc[mask]
     histories = {}
+
     for code, year in selected.index:
         histories.setdefault(code, set()).add(int(year))
+
     return histories
 
 
@@ -125,6 +78,7 @@ def build_profiles(pv, consumption, start_year, end_year):
     codes = sorted(set(sources["pv_present"]) | set(sources["c_present"]))
     window = set(range(start_year, end_year + 1))
     profiles = {}
+
     for code in codes:
         profile = {key: source.get(code, set()) for key, source in sources.items()}
         present = profile["pv_present"]
@@ -134,6 +88,7 @@ def build_profiles(pv, consumption, start_year, end_year):
         profile["common_present"] = present & profile["c_present"]
         profile["common_known"] = profile["pv_usable"] & profile["c_known"]
         profiles[code] = profile
+
     return profiles
 
 

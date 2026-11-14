@@ -1,0 +1,6 @@
+numpy
+pandas
+
+[database]
+psycopg[binary]<4,>=3.2
+pyarrow<27,>=26.0.0

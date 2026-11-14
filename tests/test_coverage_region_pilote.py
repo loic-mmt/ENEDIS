@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts/coverage_region_pilote.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts/module_2/coverage_region_pilote.py"
 spec = importlib.util.spec_from_file_location("coverage_region_pilote", SCRIPT)
 coverage = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(coverage)

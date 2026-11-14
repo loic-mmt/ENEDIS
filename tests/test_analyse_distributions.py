@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts/analyse_distributions.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts/module_2/analyse_distributions.py"
 spec = importlib.util.spec_from_file_location("analyse_distributions", SCRIPT)
 analysis = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(analysis)

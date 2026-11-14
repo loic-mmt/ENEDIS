@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Literal
 
-import numpy as np
 import pandas as pd
 
+from .utils import check_choice, check_dataframe, check_integer, check_numeric
 
 # Colonnes attendues ; les features supplémentaires restent autorisées.
 HISTORY_COLUMNS = ("code_commune", "annee", "consommation_mwh", "puissance_pv_mw")
@@ -18,14 +18,9 @@ class PredictionRequest:
 
     def __post_init__(self):
         # Les annotations seules ne valident pas les valeurs reçues.
-        if self.target not in ("consommation_mwh", "puissance_pv_mw"):
-            raise ValueError("Cible inconnue")
-
-        if type(self.origin_year) is not int:
-            raise ValueError("origin_year doit être un entier")
-
-        if type(self.horizon) is not int or self.horizon <= 0:
-            raise ValueError("horizon doit être un entier positif")
+        check_choice(self.target, TARGET_COLUMNS, "target")
+        check_integer(self.origin_year, "origin_year", strict=True)
+        check_integer(self.horizon, "horizon", minimum=1, strict=True)
 
 
 def validate_history(df: pd.DataFrame) -> None:
@@ -37,15 +32,7 @@ def validate_history(df: pd.DataFrame) -> None:
     Cutoff validation is handled separately by utils.verify_last_date.
     """
     # Vérifier la structure avant d'accéder aux colonnes.
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("L'historique doit être un DataFrame pandas.")
-    if not df.columns.is_unique:
-        raise ValueError("Noms de colonnes dupliqués dans l'historique.")
-    missing = [column for column in HISTORY_COLUMNS if column not in df.columns]
-    if missing:
-        raise ValueError(f"Colonnes obligatoires absentes : {', '.join(missing)}")
-    if df.empty:
-        raise ValueError("Historique vide.")
+    check_dataframe(df, "Historique", required=HISTORY_COLUMNS, nonempty=True)
 
     # Garder les codes en texte pour préserver les zéros initiaux.
     codes = df["code_commune"]
@@ -61,20 +48,12 @@ def validate_history(df: pd.DataFrame) -> None:
 
     # Autoriser les cibles manquantes, mais refuser les valeurs non numériques ou infinies.
     for target in TARGET_COLUMNS:
-        observed = df[target].dropna()
-        if observed.empty:
-            continue
-        dtype = df[target].dtype
-        if (not pd.api.types.is_numeric_dtype(dtype)
-                or pd.api.types.is_bool_dtype(dtype)
-                or pd.api.types.is_complex_dtype(dtype)):
-            raise ValueError(f"{target} doit contenir des nombres ou des valeurs manquantes.")
-        if not np.isfinite(observed.to_numpy(dtype=float)).all():
-            raise ValueError(f"{target} contient des valeurs infinies.")
+        check_numeric(df[target], target)
 
     # Une seule observation par commune et par année.
     if df.duplicated(["code_commune", "annee"]).any():
         raise ValueError("Doublons sur (code_commune, annee).")
+
     # Vérifier l'ordre dans chaque commune, sans trier le DataFrame.
     ordered = df.groupby("code_commune", sort=False, observed=True)["annee"].apply(
         lambda values: values.is_monotonic_increasing
